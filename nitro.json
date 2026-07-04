@@ -1,0 +1,23 @@
+{
+  "cxxNamespace": ["simpleimagecompressor"],
+  "ios": {
+    "iosModuleName": "SimpleImageCompressor"
+  },
+  "android": {
+    "androidNamespace": ["simpleimagecompressor"],
+    "androidCxxLibName": "simpleimagecompressor"
+  },
+  "autolinking": {
+    "SimpleImageCompressor": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "SimpleImageCompressor"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "SimpleImageCompressor"
+      }
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
