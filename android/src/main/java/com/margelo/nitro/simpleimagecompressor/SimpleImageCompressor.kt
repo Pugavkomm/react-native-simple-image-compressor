@@ -1,10 +1,11 @@
 package com.margelo.nitro.simpleimagecompressor
-  
+
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Promise
 
 @DoNotStrip
 class SimpleImageCompressor : HybridSimpleImageCompressorSpec() {
-  override fun multiply(a: Double, b: Double): Double {
-    return a * b
+  override fun compressImage(uri: String, options: CompressOptions): Promise<String> {
+    TODO("Not yet implemented")
   }
 }
