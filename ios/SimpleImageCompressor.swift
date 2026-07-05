@@ -17,8 +17,8 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
       }
 
       let quality = options.quality
-      let maxWidth = Int(options.maxWidth ?? 1924)
-      let maxHeight = Int(options.maxHeight ?? 1080)
+      let maxWidth = options.maxWidth.map { Int($0) }
+      let maxHeight = options.maxHeight.map { Int($0) }
 
       let formatStr: String
       switch options.format {

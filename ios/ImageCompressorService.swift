@@ -70,11 +70,76 @@ struct ImageCompressorService {
     }
   }
 
+  /// Returns the pixel dimensions (width and height) of the image from its source properties.
+  /// - Parameter source: The `CGImageSource` of the image to read.
+  /// - Returns: A tuple containing the `width` and `height` in pixels, or `nil` if the dimensions could not be read.
+  private static func getImageDimensions(from source: CGImageSource) -> (
+    width: Int, height: Int
+  )? {
+    guard
+      let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
+        as? [CFString: Any],
+      let width = properties[kCGImagePropertyPixelWidth] as? Int,
+      let height = properties[kCGImagePropertyPixelHeight] as? Int
+    else {
+      return nil
+    }
+    return (width, height)
+  }
+
+  /// Calculates the target maximum pixel size for downsampling, preserving the original aspect ratio.
+  ///
+  /// This method determines the appropriate size for image's longest side so that the scaled image
+  /// fits within the provided width and height boundaries.
+  ///
+  /// - Parameters:
+  ///   - width: The original width of the image in pixels.
+  ///   - height: The original height of the image in pixels.
+  ///   - maxWidth: An optional limit for the image width.
+  ///   - maxHeight: An optional limit for the image height
+  /// - Returns: The target pixel size for the longest side of the image.
+  private static func calculateTargetDimension(
+    width: Int,
+    height: Int,
+    maxWidth: Int?,
+    maxHeight: Int?
+  ) -> Int {
+    let originalMax = max(width, height)
+
+    var scale = 1.0
+
+    if let maxWidth = maxWidth, let maxHeight = maxHeight {
+      scale = min(
+        Double(maxWidth) / Double(width),
+        Double(maxHeight) / Double(height)
+      )
+    } else if let maxWidth = maxWidth {
+      scale = Double(maxWidth) / Double(width)
+    } else if let maxHeight = maxHeight {
+      scale = Double(maxHeight) / Double(height)
+    }
+
+    let maxDimension =
+      scale < 1.0 ? Int(Double(originalMax) * scale) : originalMax
+
+    return maxDimension
+  }
+
+  /// Compresses a local image by downsampling it to target dimensions and saving it with the specified quality and format
+  ///
+  /// - Parameters:
+  ///   - sourceUrl: The local file URL (`file://`) of the source image.
+  ///   - quality: The compression quality, ranging from `0.0` (maximum compression) to `1.0` (maximum quality).
+  ///   - maxWidth: An optional maximum width boundary. If `nil`, the width is not constrained.
+  ///   - maxHeight: An optional maximum height boundary. If `nil`, the height is not constrained.
+  ///   - format: The target image format (e.g., "jpg", "png").
+  /// - Returns: The local file URL of the compressed image stored in the temporary directory.
+  /// - Throws: An `NSError` if file validation, reading, downsampling, or writing to disk fails.
   static func compress(
     sourceUrl: URL,
     quality: Double,
-    maxWidth: Int,
-    maxHeight: Int,
+    maxWidth: Int?,
+    maxHeight: Int?,
     format: String
   ) throws -> URL {
 
@@ -94,7 +159,22 @@ struct ImageCompressorService {
     }
 
     // Down sampling
-    let maxDimension = max(maxWidth, maxHeight)
+    guard let dimensions = getImageDimensions(from: source) else {
+      throw NSError(
+        domain: domainName,
+        // TODO: Other code
+        code: 2,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to read image dimensions"]
+      )
+    }
+
+    let maxDimension = calculateTargetDimension(
+      width: dimensions.width,
+      height: dimensions.height,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight
+    )
+
     let downsampleOptions = createDownSampleOptions(maxDimension: maxDimension)
     guard
       let downsampleImage = CGImageSourceCreateThumbnailAtIndex(
