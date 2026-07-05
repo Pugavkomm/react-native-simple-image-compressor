@@ -8,12 +8,23 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
     -> Promise<String>
   {
     return Promise.async {
-      guard let sourceUrl = URL(string: uri) else {
+      let cleanUri = uri.replacingOccurrences(of: "file://", with: "")
+
+      guard !cleanUri.isEmpty else {
         throw NSError(
           domain: "SimpleImageCompressor",
           code: 100,
-          userInfo: [NSLocalizedDescriptionKey: "Invalid URI format"]
+          userInfo: [
+            NSLocalizedDescriptionKey: "Invalid URI format: path is empty"
+          ]
         )
+      }
+
+      let sourceUrl: URL
+      if #available(iOS 16.0, *) {
+        sourceUrl = URL(filePath: cleanUri)
+      } else {
+        sourceUrl = URL(fileURLWithPath: cleanUri)
       }
 
       let quality = options.quality
