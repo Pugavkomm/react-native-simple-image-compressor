@@ -2,6 +2,43 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
+enum ImageCompressorError: Int, LocalizedError, CustomNSError {
+  case cannotReadSource = 1
+  case cannotReadDimensions = 2
+  case cannotCreateDestination = 3
+  case writeFailed = 4
+  case invalidSourceUrl = 5
+  case fileDoesNotExist = 6
+  case downsamplingFailed = 7
+  case invalidTargetParameter = 8
+
+  static var errorDomain: String {
+    return "ImageCompressor"
+  }
+
+  var errorCode: Int {
+    return self.rawValue
+  }
+
+  var errorUserInfo: [String: Any] {
+    return [NSLocalizedDescriptionKey: errorDescription ?? "Unknown error"]
+  }
+
+  var errorDescription: String? {
+    switch self {
+    case .cannotReadSource: return "Cannot read source file"
+    case .cannotReadDimensions: return "Failed to read image dimensions"
+    case .cannotCreateDestination: return "Cannot create destination file"
+    case .writeFailed: return "Failed to write image to disk"
+    case .invalidSourceUrl:
+      return "Source URL must be a local file path (file://)"
+    case .fileDoesNotExist: return "File does not exist at the specified path"
+    case .downsamplingFailed: return "Downsampling failed"
+    case .invalidTargetParameter: return "Invalide target parameters"
+    }
+  }
+}
+
 struct ImageCompressorService {
 
   private static let domainName = "ImageCompressor"
@@ -28,7 +65,7 @@ struct ImageCompressorService {
     ] as CFDictionary
   }
 
-  private static func getFormatDetails(for format: String) -> (
+  static func getFormatDetails(for format: String) -> (
     extension: String, utType: CFString
   ) {
     switch format.lowercased() {
@@ -46,27 +83,35 @@ struct ImageCompressorService {
 
   private static func isFileUrl(sourceUrl: URL) throws {
     guard sourceUrl.isFileURL else {
-      throw NSError(
-        domain: domainName,
-        code: 5,
-        userInfo: [
-          NSLocalizedDescriptionKey:
-            "Source URL must be a local file path (file://)"
-        ]
-      )
+      throw ImageCompressorError.invalidSourceUrl
     }
   }
 
   private static func isFileExists(sourceUrl: URL) throws {
     guard FileManager.default.fileExists(atPath: sourceUrl.path) else {
-      throw NSError(
-        domain: domainName,
-        code: 6,
-        userInfo: [
-          NSLocalizedDescriptionKey:
-            "File does not exist at path: \(sourceUrl.path)"
-        ]
-      )
+      throw ImageCompressorError.fileDoesNotExist
+    }
+  }
+
+  private static func isValidParameters(
+    quality: Double,
+    maxWidth: Int?,
+    maxHeight: Int?
+  ) throws {
+    guard quality >= 0.0 && quality <= 1.0 else {
+      throw ImageCompressorError.invalidTargetParameter
+    }
+
+    if let width = maxWidth {
+      guard width > 0 else {
+        throw ImageCompressorError.invalidTargetParameter
+      }
+    }
+
+    if let height = maxHeight {
+      guard height > 0 else {
+        throw ImageCompressorError.invalidTargetParameter
+      }
     }
   }
 
@@ -98,12 +143,13 @@ struct ImageCompressorService {
   ///   - maxWidth: An optional limit for the image width.
   ///   - maxHeight: An optional limit for the image height
   /// - Returns: The target pixel size for the longest side of the image.
-  private static func calculateTargetDimension(
+  static func calculateTargetDimension(
     width: Int,
     height: Int,
     maxWidth: Int?,
     maxHeight: Int?
   ) -> Int {
+
     let originalMax = max(width, height)
 
     var scale = 1.0
@@ -125,6 +171,54 @@ struct ImageCompressorService {
     return maxDimension
   }
 
+  private static func readSource(sourceUrl: URL) throws -> CGImageSource {
+    guard
+      let source = CGImageSourceCreateWithURL(sourceUrl as CFURL, readOptions)
+    else {
+      throw ImageCompressorError.cannotReadSource
+    }
+    return source
+  }
+
+  private static func downSampling(
+    from source: CGImageSource,
+    maxDimension: Int
+  ) throws -> CGImage {
+    let downsampleOptions = createDownSampleOptions(maxDimension: maxDimension)
+    guard
+      let downsampleImage = CGImageSourceCreateThumbnailAtIndex(
+        source,
+        0,
+        downsampleOptions
+      )
+    else {
+      throw ImageCompressorError.downsamplingFailed
+    }
+    return downsampleImage
+  }
+
+  private static func prepareDestination(format: String) throws -> (
+    url: URL, destination: CGImageDestination
+  ) {
+    let formatDetails = getFormatDetails(for: format)
+    let uniqueFileName = UUID().uuidString + formatDetails.extension
+    let destinationUrl = URL(fileURLWithPath: NSTemporaryDirectory())
+      .appendingPathComponent(uniqueFileName)
+
+    guard
+      let destination = CGImageDestinationCreateWithURL(
+        destinationUrl as CFURL,
+        formatDetails.utType,
+        1,
+        nil
+      )
+    else {
+      throw ImageCompressorError.cannotCreateDestination
+    }
+
+    return (destinationUrl, destination)
+  }
+
   /// Compresses a local image by downsampling it to target dimensions and saving it with the specified quality and format
   ///
   /// - Parameters:
@@ -134,7 +228,7 @@ struct ImageCompressorService {
   ///   - maxHeight: An optional maximum height boundary. If `nil`, the height is not constrained.
   ///   - format: The target image format (e.g., "jpg", "png").
   /// - Returns: The local file URL of the compressed image stored in the temporary directory.
-  /// - Throws: An `NSError` if file validation, reading, downsampling, or writing to disk fails.
+  /// - Throws: An `Error` if file validation, reading, downsampling, or writing to disk fails.
   static func compress(
     sourceUrl: URL,
     quality: Double,
@@ -144,30 +238,21 @@ struct ImageCompressorService {
   ) throws -> URL {
 
     // Validation
+    try isValidParameters(
+      quality: quality,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight
+    )
     try isFileUrl(sourceUrl: sourceUrl)
     try isFileExists(sourceUrl: sourceUrl)
 
     // Read source
-    guard
-      let source = CGImageSourceCreateWithURL(sourceUrl as CFURL, readOptions)
-    else {
-      throw NSError(
-        domain: domainName,
-        code: 1,
-        userInfo: [NSLocalizedDescriptionKey: "Cannot read source file"]
-      )
-    }
+    let source = try readSource(sourceUrl: sourceUrl)
 
     // Down sampling
     guard let dimensions = getImageDimensions(from: source) else {
-      throw NSError(
-        domain: domainName,
-        // TODO: Other code
-        code: 2,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to read image dimensions"]
-      )
+      throw ImageCompressorError.cannotReadDimensions
     }
-
     let maxDimension = calculateTargetDimension(
       width: dimensions.width,
       height: dimensions.height,
@@ -175,52 +260,25 @@ struct ImageCompressorService {
       maxHeight: maxHeight
     )
 
-    let downsampleOptions = createDownSampleOptions(maxDimension: maxDimension)
-    guard
-      let downsampleImage = CGImageSourceCreateThumbnailAtIndex(
-        source,
-        0,
-        downsampleOptions
-      )
-    else {
-      throw NSError(
-        domain: domainName,
-        code: 2,
-        userInfo: [NSLocalizedDescriptionKey: "Downsampling failed"]
-      )
-    }
+    let downSampleImage = try downSampling(
+      from: source,
+      maxDimension: maxDimension
+    )
 
     // Prepare destination
-    let formatDetails = getFormatDetails(for: format)
-    let uniqueFileName = UUID().uuidString + formatDetails.extension
-    let destinationUrl = URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent(uniqueFileName)
-    guard
-      let destination = CGImageDestinationCreateWithURL(
-        destinationUrl as CFURL,
-        formatDetails.utType,
-        1,
-        nil
-      )
-    else {
-      throw NSError(
-        domain: domainName,
-        code: 3,
-        userInfo: [NSLocalizedDescriptionKey: "Cannot create destination file"]
-      )
-    }
+    let target = try prepareDestination(format: format)
     let destinationOptions = createDestinationOptions(quality: quality)
 
     // Write
-    CGImageDestinationAddImage(destination, downsampleImage, destinationOptions)
-    guard CGImageDestinationFinalize(destination) else {
-      throw NSError(
-        domain: domainName,
-        code: 4,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to write image to disk"]
-      )
+    CGImageDestinationAddImage(
+      target.destination,
+      downSampleImage,
+      destinationOptions
+    )
+    guard CGImageDestinationFinalize(target.destination) else {
+      throw ImageCompressorError.writeFailed
     }
 
-    return destinationUrl
+    return target.url
   }
 }

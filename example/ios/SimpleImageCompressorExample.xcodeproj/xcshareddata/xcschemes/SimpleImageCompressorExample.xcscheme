@@ -38,6 +38,17 @@
                ReferencedContainer = "container:SimpleImageCompressorExample.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1EE80A032FFB0C2400D4B569"
+               BuildableName = "SimpleImageCompressorTests.xctest"
+               BlueprintName = "SimpleImageCompressorTests"
+               ReferencedContainer = "container:SimpleImageCompressorExample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
