@@ -2,10 +2,12 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - master
+      - dev
   pull_request:
     branches:
-      - main
+      - master
+      - dev
   merge_group:
     types:
       - checks_requested
@@ -171,6 +173,17 @@ jobs:
       - name: Build example for iOS
         run: |
           yarn turbo run build:ios --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+
+
+      - name: Run iOS Unit Tests
+        run: |
+          cd example/ios
+          xcodebuild test \
+            -workspace SimpleImageCompressorExample.xcworkspace \
+            -scheme SimpleImageCompressorExample \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -only-testing:SimpleImageCompressorTests \
+            -quiet
 
   build-web:
     runs-on: ubuntu-latest
