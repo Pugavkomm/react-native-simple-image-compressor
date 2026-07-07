@@ -108,6 +108,12 @@ android {
   testOptions {
     unitTests {
       includeAndroidResources = true
+      all {
+        testLogging {
+          events "passed", "skipped", "failed"
+          exceptionFormat "full"
+        }
+      }
     }
   }
 }
