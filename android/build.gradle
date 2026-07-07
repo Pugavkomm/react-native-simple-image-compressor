@@ -104,9 +104,25 @@ android {
     sourceCompatibility JavaVersion.VERSION_17
     targetCompatibility JavaVersion.VERSION_17
   }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+      all {
+        testLogging {
+          events "passed", "skipped", "failed"
+          exceptionFormat "full"
+        }
+      }
+    }
+  }
 }
 
 dependencies {
   implementation "com.facebook.react:react-android"
   implementation project(":react-native-nitro-modules")
+
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'org.robolectric:robolectric:4.11.1'
+  testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }

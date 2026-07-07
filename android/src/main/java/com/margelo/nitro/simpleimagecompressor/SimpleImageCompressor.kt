@@ -6,6 +6,14 @@ import com.margelo.nitro.core.Promise
 @DoNotStrip
 class SimpleImageCompressor : HybridSimpleImageCompressorSpec() {
   override fun compressImage(uri: String, options: CompressOptions): Promise<CompressedResult> {
-    TODO("Not yet implemented")
+    return Promise.async {
+      SimpleCompressorService.compress(
+        uri,
+        options.quality,
+        options.maxWidth?.toInt(),
+        options.maxHeight?.toInt(),
+        options.format
+      )
+    }
   }
 }

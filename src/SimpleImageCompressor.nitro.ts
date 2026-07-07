@@ -10,7 +10,7 @@ export interface CompressOptions {
   quality: number;
   maxWidth?: number;
   maxHeight?: number;
-  format?: OutputCompressedFormat;
+  format: OutputCompressedFormat;
 }
 
 export interface SimpleImageCompressor extends HybridObject<{
