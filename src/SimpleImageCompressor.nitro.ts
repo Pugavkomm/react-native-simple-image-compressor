@@ -2,6 +2,10 @@ import type { HybridObject } from 'react-native-nitro-modules';
 
 export type OutputCompressedFormat = 'jpg' | 'png' | 'jpeg' | 'webp';
 
+export interface CompressedResult {
+  uri: string;
+}
+
 export interface CompressOptions {
   quality: number;
   maxWidth?: number;
@@ -13,5 +17,8 @@ export interface SimpleImageCompressor extends HybridObject<{
   ios: 'swift';
   android: 'kotlin';
 }> {
-  compressImage(uri: string, options: CompressOptions): Promise<string>;
+  compressImage(
+    uri: string,
+    options: CompressOptions
+  ): Promise<CompressedResult>;
 }

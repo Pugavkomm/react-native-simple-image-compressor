@@ -5,7 +5,7 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
   var memorySize: Int { return 0 }
 
   public func compressImage(uri: String, options: CompressOptions) throws
-    -> Promise<String>
+  -> Promise<CompressedResult>
   {
     return Promise.async {
       let cleanUri = uri.replacingOccurrences(of: "file://", with: "")
@@ -48,7 +48,7 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
         maxHeight: maxHeight,
         format: formatStr
       )
-      return compressedUrl.absoluteString
+      return CompressedResult(uri: compressedUrl.absoluteString)
     }
   }
 }

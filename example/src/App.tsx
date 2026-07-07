@@ -98,15 +98,14 @@ export default function App() {
     setIsCompressing(true);
     try {
       const options: CompressOptions = {
-        quality: 0.1, // The exact parameter that we fixed!
-        maxWidth: 8024,
-        maxHeight: 8024,
+        quality: 0.1,
         format: 'jpeg',
       };
 
       console.log('Starting compression with options:', options);
 
-      const resultUri = await compressImage(originalImage, options);
+      const result = await compressImage(originalImage, options);
+      const resultUri = result.uri;
       console.log('Compression result:', resultUri);
 
       setCompressedImage(resultUri);
@@ -166,7 +165,7 @@ export default function App() {
               disabled={isCompressing}
             >
               <Text style={styles.buttonText}>
-                {isCompressing ? 'Compressing...' : '2. Compress (Max 1024px)'}
+                {isCompressing ? 'Compressing...' : '2. Compress'}
               </Text>
             </TouchableOpacity>
           </View>
