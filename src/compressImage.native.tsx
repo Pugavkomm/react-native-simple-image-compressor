@@ -1,5 +1,6 @@
 import { NitroModules } from 'react-native-nitro-modules';
 import type {
+  CompressedResult,
   CompressOptions,
   SimpleImageCompressor,
 } from './SimpleImageCompressor.nitro';
@@ -12,6 +13,6 @@ const SimpleImageCompressorHybridObject =
 export async function compressImage(
   uri: string,
   options: CompressOptions
-): Promise<string> {
+): Promise<CompressedResult> {
   return await SimpleImageCompressorHybridObject.compressImage(uri, options);
 }
