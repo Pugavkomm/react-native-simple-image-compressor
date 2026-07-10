@@ -2,6 +2,13 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
+enum ImageFormat {
+  case jpg
+  case png
+  case webp
+  case webpLossless
+}
+
 enum ImageCompressorError: Int, LocalizedError, CustomNSError {
   case cannotReadSource = 1
   case cannotReadDimensions = 2
@@ -57,7 +64,7 @@ struct ImageCompressorService {
   ///   - quality: The compression quality, ranging from `0.0` (maximum compression) to `1.0` (maximum quality).
   ///   - maxWidth: An optional maximum width boundary. If `nil`, the width is not constrained.
   ///   - maxHeight: An optional maximum height boundary. If `nil`, the height is not constrained.
-  ///   - format: The target image format (e.g., "jpg", "png").
+  ///   - imageFormat: The target image format.
   /// - Returns: The local file URL of the compressed image stored in the temporary directory.
   /// - Throws: An `Error` if file validation, reading, downsampling, or writing to disk fails.
   static func compress(
@@ -65,7 +72,7 @@ struct ImageCompressorService {
     quality: Double,
     maxWidth: Int?,
     maxHeight: Int?,
-    format: String
+    imageFormat: ImageFormat
   ) throws -> URL {
 
     // Validation
@@ -96,21 +103,64 @@ struct ImageCompressorService {
       maxDimension: maxDimension
     )
 
-    // Prepare destination
-    let target = try prepareDestination(format: format)
-    let destinationOptions = createDestinationOptions(quality: quality)
+    let formatDetails = getFormatDetails(for: imageFormat)
+    let uniqueFileName = UUID().uuidString + formatDetails.extension
+    let destinationUrl = URL(fileURLWithPath: NSTemporaryDirectory())
+      .appendingPathComponent(uniqueFileName)
 
-    // Write
-    CGImageDestinationAddImage(
-      target.destination,
-      downSampleImage,
-      destinationOptions
-    )
-    guard CGImageDestinationFinalize(target.destination) else {
-      throw ImageCompressorError.writeFailed
+    switch imageFormat {
+    case .webp, .webpLossless:
+      #if canImport(libwebp)
+        let mode: WebPCompressionMode =
+          (imageFormat == .webpLossless)
+          ? .lossless
+          : .lossy(quality: quality)
+        let webPData = try encodeToWebp(cgImage: downSampleImage, mode: mode)
+        try webPData.write(to: destinationUrl)
+      #else
+        print(
+          "⚠️⚠️⚠️ [Warning] WebP encoding is not supported natively by iOS ImageIO. Falling back to JPEG."
+        )
+        try writeWithImageIO(
+          image: downSampleImage,
+          to: destinationUrl,
+          utType: formatDetails.utType,
+          quality: quality
+        )
+      #endif
+    default:
+      try writeWithImageIO(
+        image: downSampleImage,
+        to: destinationUrl,
+        utType: formatDetails.utType,
+        quality: quality
+      )
     }
 
-    return target.url
+    return destinationUrl
+  }
+
+  private static func writeWithImageIO(
+    image: CGImage,
+    to url: URL,
+    utType: CFString,
+    quality: Double
+  ) throws {
+    guard
+      let destination = CGImageDestinationCreateWithURL(
+        url as CFURL,
+        utType,
+        1,
+        nil
+      )
+    else {
+      throw ImageCompressorError.cannotCreateDestination
+    }
+    let destinationOptions = createDestinationOptions(quality: quality)
+    CGImageDestinationAddImage(destination, image, destinationOptions)
+    guard CGImageDestinationFinalize(destination) else {
+      throw ImageCompressorError.writeFailed
+    }
   }
 
   /// Calculates the target maximum pixel size for downsampling, preserving the original aspect ratio.
@@ -207,17 +257,18 @@ struct ImageCompressorService {
     ] as CFDictionary
   }
 
-  static func getFormatDetails(for format: String) -> (
+  static func getFormatDetails(for format: ImageFormat) -> (
     extension: String, utType: CFString
   ) {
-    switch format.lowercased() {
-    case "png":
+    switch format {
+    case .png:
       return (".png", UTType.png.identifier as CFString)
-    case "webp":
-      print(
-        "⚠️ [Warning] WebP encoding is not supported natively by iOS ImageIO. Falling back to JPEG."
-      )
-      return (".jpg", UTType.jpeg.identifier as CFString)
+    case .webp, .webpLossless:
+      #if canImport(libwebp)
+        return (".webp", UTType.webP.identifier as CFString)
+      #else
+        return (".jpg", UTType.jpeg.identifier as CFString)
+      #endif
     default:
       return (".jpg", UTType.jpeg.identifier as CFString)
     }
@@ -264,28 +315,6 @@ struct ImageCompressorService {
       throw ImageCompressorError.downsamplingFailed
     }
     return downsampleImage
-  }
-
-  private static func prepareDestination(format: String) throws -> (
-    url: URL, destination: CGImageDestination
-  ) {
-    let formatDetails = getFormatDetails(for: format)
-    let uniqueFileName = UUID().uuidString + formatDetails.extension
-    let destinationUrl = URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent(uniqueFileName)
-
-    guard
-      let destination = CGImageDestinationCreateWithURL(
-        destinationUrl as CFURL,
-        formatDetails.utType,
-        1,
-        nil
-      )
-    else {
-      throw ImageCompressorError.cannotCreateDestination
-    }
-
-    return (destinationUrl, destination)
   }
 
 }

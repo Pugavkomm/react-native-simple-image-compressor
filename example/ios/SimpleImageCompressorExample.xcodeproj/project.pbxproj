@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-SimpleImageCompressorExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-SimpleImageCompressorExample.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		1EF119AB2FFB11AA00E22366 /* ImageCompressorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EF119AA2FFB11AA00E22366 /* ImageCompressorService.swift */; };
+		1EC35C3A3000903A00C01AB7 /* WebPEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC35C383000903A00C01AB7 /* WebPEncoder.swift */; };
+		1EC35C3B3000903A00C01AB7 /* ImageCompressorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC35C393000903A00C01AB7 /* ImageCompressorService.swift */; };
+		47CF6BD76EE8990F358E2CD0 /* libPods-SimpleImageCompressorTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D56E246E62DDD8B29EBED154 /* libPods-SimpleImageCompressorTests.a */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		7F36CB10959C6FE300A257E2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -30,13 +32,17 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SimpleImageCompressorExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SimpleImageCompressorExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = SimpleImageCompressorExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1EC35C383000903A00C01AB7 /* WebPEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebPEncoder.swift; path = ../../ios/WebPEncoder.swift; sourceTree = "<group>"; };
+		1EC35C393000903A00C01AB7 /* ImageCompressorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageCompressorService.swift; path = ../../ios/ImageCompressorService.swift; sourceTree = "<group>"; };
 		1EE80A042FFB0C2400D4B569 /* SimpleImageCompressorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleImageCompressorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		1EF119AA2FFB11AA00E22366 /* ImageCompressorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageCompressorService.swift; path = ../../ios/ImageCompressorService.swift; sourceTree = "<group>"; };
+		264FEB1CFFCF8022BE86B168 /* Pods-SimpleImageCompressorTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleImageCompressorTests.debug.xcconfig"; path = "Target Support Files/Pods-SimpleImageCompressorTests/Pods-SimpleImageCompressorTests.debug.xcconfig"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-SimpleImageCompressorExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleImageCompressorExample.debug.xcconfig"; path = "Target Support Files/Pods-SimpleImageCompressorExample/Pods-SimpleImageCompressorExample.debug.xcconfig"; sourceTree = "<group>"; };
+		3CC40CDE4761D40E4E02DB06 /* Pods-SimpleImageCompressorTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleImageCompressorTests.release.xcconfig"; path = "Target Support Files/Pods-SimpleImageCompressorTests/Pods-SimpleImageCompressorTests.release.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-SimpleImageCompressorExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleImageCompressorExample.release.xcconfig"; path = "Target Support Files/Pods-SimpleImageCompressorExample/Pods-SimpleImageCompressorExample.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-SimpleImageCompressorExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SimpleImageCompressorExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SimpleImageCompressorExample/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = SimpleImageCompressorExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D56E246E62DDD8B29EBED154 /* libPods-SimpleImageCompressorTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SimpleImageCompressorTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -67,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47CF6BD76EE8990F358E2CD0 /* libPods-SimpleImageCompressorTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +97,7 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-SimpleImageCompressorExample.a */,
+				D56E246E62DDD8B29EBED154 /* libPods-SimpleImageCompressorTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -104,7 +112,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				1EF119AA2FFB11AA00E22366 /* ImageCompressorService.swift */,
+				1EC35C393000903A00C01AB7 /* ImageCompressorService.swift */,
+				1EC35C383000903A00C01AB7 /* WebPEncoder.swift */,
 				13B07FAE1A68108700A75B9A /* SimpleImageCompressorExample */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				1EE80A052FFB0C2400D4B569 /* SimpleImageCompressorTests */,
@@ -131,6 +140,8 @@
 			children = (
 				3B4392A12AC88292D35C810B /* Pods-SimpleImageCompressorExample.debug.xcconfig */,
 				5709B34CF0A7D63546082F79 /* Pods-SimpleImageCompressorExample.release.xcconfig */,
+				264FEB1CFFCF8022BE86B168 /* Pods-SimpleImageCompressorTests.debug.xcconfig */,
+				3CC40CDE4761D40E4E02DB06 /* Pods-SimpleImageCompressorTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -163,6 +174,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1EE80A0C2FFB0C2400D4B569 /* Build configuration list for PBXNativeTarget "SimpleImageCompressorTests" */;
 			buildPhases = (
+				810D3E774C2643E833956240 /* [CP] Check Pods Manifest.lock */,
 				1EE80A002FFB0C2400D4B569 /* Sources */,
 				1EE80A012FFB0C2400D4B569 /* Frameworks */,
 				1EE80A022FFB0C2400D4B569 /* Resources */,
@@ -270,6 +282,28 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SimpleImageCompressorExample/Pods-SimpleImageCompressorExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		810D3E774C2643E833956240 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SimpleImageCompressorTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -324,7 +358,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1EF119AB2FFB11AA00E22366 /* ImageCompressorService.swift in Sources */,
+				1EC35C3A3000903A00C01AB7 /* WebPEncoder.swift in Sources */,
+				1EC35C3B3000903A00C01AB7 /* ImageCompressorService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -401,11 +436,13 @@
 		};
 		1EE80A0A2FFB0C2400D4B569 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 264FEB1CFFCF8022BE86B168 /* Pods-SimpleImageCompressorTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "$(inherited)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
@@ -436,11 +473,13 @@
 		};
 		1EE80A0B2FFB0C2400D4B569 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3CC40CDE4761D40E4E02DB06 /* Pods-SimpleImageCompressorTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "$(inherited)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;

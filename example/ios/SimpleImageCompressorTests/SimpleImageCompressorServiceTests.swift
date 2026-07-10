@@ -125,39 +125,36 @@ final class SimpleImageCompressorTests: XCTestCase {
 
   // MARK: - getFormatDetails
   func testGetFormatDetails_png() {
-    let result = ImageCompressorService.getFormatDetails(for: "png")
+    let result = ImageCompressorService.getFormatDetails(for: .png)
 
     XCTAssertEqual(result.extension, ".png")
     XCTAssertEqual(result.utType as String, "public.png")
   }
 
   func testGetFormatDetails_jpg() {
-    let result = ImageCompressorService.getFormatDetails(for: "jpg")
+    let result = ImageCompressorService.getFormatDetails(for: .jpg)
 
     XCTAssertEqual(result.extension, ".jpg")
     XCTAssertEqual(result.utType as String, "public.jpeg")
   }
 
   func testGetFormatDetails_jpeg() {
-    let result = ImageCompressorService.getFormatDetails(for: "jpg")
+    let result = ImageCompressorService.getFormatDetails(for: .jpg)
 
     XCTAssertEqual(result.extension, ".jpg")
     XCTAssertEqual(result.utType as String, "public.jpeg")
   }
 
   func testGetFormatDetails_webpFallback() {
-    // Not supported. Fallback: jpg (jpeg)
-    let result = ImageCompressorService.getFormatDetails(for: "webp")
+    let result = ImageCompressorService.getFormatDetails(for: .webp)
 
-    XCTAssertEqual(result.extension, ".jpg")
-    XCTAssertEqual(result.utType as String, "public.jpeg")
-  }
-
-  func testGetFormatDetails_wrongFormatFallback() {
-    let result = ImageCompressorService.getFormatDetails(for: "strangeFormat")
-
-    XCTAssertEqual(result.extension, ".jpg")
-    XCTAssertEqual(result.utType as String, "public.jpeg")
+    #if canImport(libwebp)
+      XCTAssertEqual(result.extension, ".webp")
+      XCTAssertEqual(result.utType as String, "org.webmproject.webp")
+    #else
+      XCTAssertEqual(result.extension, ".jpg")
+      XCTAssertEqual(result.utType as String, "public.jpeg")
+    #endif
   }
 
   // MARK: - compress (positive)
@@ -171,7 +168,7 @@ final class SimpleImageCompressorTests: XCTestCase {
       quality: 0.5,
       maxWidth: 1000,
       maxHeight: nil,
-      format: "jpg"
+      imageFormat: .jpg
     )
 
     defer { try? FileManager.default.removeItem(at: resultUrl) }
@@ -212,7 +209,7 @@ final class SimpleImageCompressorTests: XCTestCase {
       quality: 0.5,
       maxWidth: 1000,
       maxHeight: nil,
-      format: "png"
+      imageFormat: .png
     )
 
     defer { try? FileManager.default.removeItem(at: resultUrl) }
@@ -240,7 +237,7 @@ final class SimpleImageCompressorTests: XCTestCase {
           quality: 1.0,
           maxWidth: 100,
           maxHeight: 100,
-          format: "png"
+          imageFormat: .jpg
         )
     ) { error in
       XCTAssertEqual(
@@ -259,7 +256,7 @@ final class SimpleImageCompressorTests: XCTestCase {
           quality: 1.0,
           maxWidth: 100,
           maxHeight: 100,
-          format: "png"
+          imageFormat: .jpg
         )
     ) { error in
       XCTAssertEqual(
@@ -285,7 +282,7 @@ final class SimpleImageCompressorTests: XCTestCase {
         quality: 1.0,
         maxWidth: 100,
         maxHeight: 100,
-        format: "jpg"
+        imageFormat: .jpg
       )
     ) { error in
       XCTAssertEqual(error as? ImageCompressorError, .cannotReadDimensions)
@@ -300,7 +297,7 @@ final class SimpleImageCompressorTests: XCTestCase {
           quality: -0.1,
           maxWidth: 100,
           maxHeight: 100,
-          format: "png",
+          imageFormat: .png
         )
     ) { error in
       XCTAssertEqual(
@@ -318,7 +315,7 @@ final class SimpleImageCompressorTests: XCTestCase {
           quality: 1.1,
           maxWidth: 100,
           maxHeight: 100,
-          format: "png",
+          imageFormat: .png
         )
     ) { error in
       XCTAssertEqual(
@@ -336,7 +333,7 @@ final class SimpleImageCompressorTests: XCTestCase {
           quality: 1.0,
           maxWidth: -100,
           maxHeight: 100,
-          format: "png",
+          imageFormat: .png
         )
     ) { error in
       XCTAssertEqual(
@@ -354,7 +351,7 @@ final class SimpleImageCompressorTests: XCTestCase {
           quality: 1.0,
           maxWidth: 100,
           maxHeight: -100,
-          format: "png",
+          imageFormat: .png
         )
     ) { error in
       XCTAssertEqual(
