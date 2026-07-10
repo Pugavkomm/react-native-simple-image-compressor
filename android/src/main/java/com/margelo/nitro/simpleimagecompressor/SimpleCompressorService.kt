@@ -107,6 +107,7 @@ object SimpleCompressorService {
   private fun decodeSampledBitmap(filePath: String, inSampleSize: Int): Bitmap {
     val opts = BitmapFactory.Options().apply {
       inJustDecodeBounds = false
+      this.inSampleSize = inSampleSize
     }
 
     return BitmapFactory.decodeFile(filePath, opts)
