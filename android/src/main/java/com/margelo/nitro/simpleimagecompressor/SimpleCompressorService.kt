@@ -2,14 +2,52 @@ package com.margelo.nitro.simpleimagecompressor
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.os.Build
-import androidx.core.graphics.scale
+import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import kotlin.math.min
 
 object SimpleCompressorService {
+
+  private val EXIF_TAGS_TO_COPY = arrayOf(
+    // Datetime
+    ExifInterface.TAG_DATETIME,
+    ExifInterface.TAG_DATETIME_ORIGINAL,
+    ExifInterface.TAG_DATETIME_DIGITIZED,
+    ExifInterface.TAG_SUBSEC_TIME,
+    ExifInterface.TAG_SUBSEC_TIME_ORIGINAL,
+    ExifInterface.TAG_SUBSEC_TIME_DIGITIZED,
+
+    // Camera information
+    ExifInterface.TAG_MAKE,
+    ExifInterface.TAG_MODEL,
+    ExifInterface.TAG_LENS_MAKE,
+    ExifInterface.TAG_LENS_MODEL,
+
+    // Shooting parameters
+    ExifInterface.TAG_F_NUMBER,
+    ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
+    ExifInterface.TAG_EXPOSURE_TIME,
+    ExifInterface.TAG_FOCAL_LENGTH,
+    ExifInterface.TAG_FLASH,
+    ExifInterface.TAG_WHITE_BALANCE,
+    ExifInterface.TAG_COLOR_SPACE,
+
+    // GPS
+    ExifInterface.TAG_GPS_LATITUDE,
+    ExifInterface.TAG_GPS_LATITUDE_REF,
+    ExifInterface.TAG_GPS_LONGITUDE,
+    ExifInterface.TAG_GPS_LONGITUDE_REF,
+    ExifInterface.TAG_GPS_ALTITUDE,
+    ExifInterface.TAG_GPS_ALTITUDE_REF,
+    ExifInterface.TAG_GPS_TIMESTAMP,
+    ExifInterface.TAG_GPS_DATESTAMP,
+    ExifInterface.TAG_GPS_PROCESSING_METHOD
+  )
+
   fun compress(
     sourceUri: String,
     quality: Double,
@@ -22,7 +60,15 @@ object SimpleCompressorService {
     val filePath = resolveFilePath(sourceUri)
     //  Read source
     val sourceOptions = decodeBounds(filePath)
-    val (height: Int, width: Int) = sourceOptions.run { outHeight to outWidth }
+    var (height: Int, width: Int) = sourceOptions.run { outHeight to outWidth }
+    val rotationDeg = getRotationDegrees(filePath)
+
+    if (rotationDeg == 90 || rotationDeg == 270) {
+      val temp = width
+      width = height
+      height = temp
+    }
+
     val inSampleSize: Int = if (maxWidth != null || maxHeight != null) calculateInSampleSize(
       width,
       height,
@@ -36,13 +82,15 @@ object SimpleCompressorService {
       maxWidth,
       maxHeight
     )
-
-    val scaled = scaleBitmap(source, targetWidth, targetHeight)
+    val transformed = scaleAndRotateBitmap(source, targetWidth, targetHeight, rotationDeg)
     val qualityInt = resolveQuality(quality, format)
     val compressFormat = resolveCompressFormat(format)
     val extension = resolveFileExtension(format)
     val cacheDir = File(System.getProperty("java.io.tmpdir") ?: "/tmp")
-    val resultFile = compressToFile(scaled, compressFormat, extension, qualityInt, cacheDir)
+    val resultFile = compressToFile(transformed, compressFormat, extension, qualityInt, cacheDir)
+    if (format == OutputCompressedFormat.JPEG || format == OutputCompressedFormat.JPG) {
+      copyExifMetadata(filePath, resultFile.absolutePath)
+    }
 
     return CompressedResult(uri = "file://${resultFile.absolutePath}")
   }
@@ -114,6 +162,19 @@ object SimpleCompressorService {
       ?: throw ImageCompressorException.DecodingFailed()
   }
 
+  private fun getRotationDegrees(filePath: String): Int {
+    val exif = ExifInterface(filePath)
+    return when (exif.getAttributeInt(
+      ExifInterface.TAG_ORIENTATION,
+      ExifInterface.ORIENTATION_NORMAL
+    )) {
+      ExifInterface.ORIENTATION_ROTATE_90 -> 90
+      ExifInterface.ORIENTATION_ROTATE_180 -> 180
+      ExifInterface.ORIENTATION_ROTATE_270 -> 270
+      else -> 0
+    }
+  }
+
   /**
    * Calculates the target sizes for downsampling, preserving the original aspect ratio.
    *
@@ -142,14 +203,45 @@ object SimpleCompressorService {
     return (width * scale).toInt() to (height * scale).toInt()
   }
 
-  private fun scaleBitmap(source: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
-    if (source.width == targetWidth && source.height == targetHeight) return source
+  private fun scaleAndRotateBitmap(
+    source: Bitmap,
+    targetWidth: Int,
+    targetHeight: Int,
+    rotationDeg: Int
+  ): Bitmap {
 
-    val scaled = source.scale(targetWidth, targetHeight)
-    if (scaled !== source) {
+    val matrix = Matrix()
+
+    // Rotation is taken into account for correct scaling.
+    val destPhysicalWidth =
+      if (rotationDeg == 90 || rotationDeg == 270) targetHeight else targetWidth
+    val destPhysicalHeight =
+      if (rotationDeg == 90 || rotationDeg == 270) targetWidth else targetHeight
+
+    if (source.width != destPhysicalWidth || source.height != destPhysicalHeight) {
+      val scaleX = destPhysicalWidth.toFloat() / source.width
+      val scaleY = destPhysicalHeight.toFloat() / source.height
+      matrix.postScale(scaleX, scaleY)
+    }
+
+    if (rotationDeg != 0) {
+      matrix.postRotate(rotationDeg.toFloat())
+    }
+
+    if (matrix.isIdentity) return source
+
+    val transformed = Bitmap.createBitmap(
+      source,
+      0, 0,
+      source.width, source.height,
+      matrix,
+      true
+    )
+
+    if (transformed !== source) {
       source.recycle()
     }
-    return scaled
+    return transformed
   }
 
   private fun resolveQuality(quality: Double, format: OutputCompressedFormat): Int {
@@ -214,5 +306,28 @@ object SimpleCompressorService {
       if (!success) throw ImageCompressorException.WriteFailed()
     }
     return outputFile
+  }
+
+  private fun copyExifMetadata(originalPath: String, compressedPath: String) {
+    try {
+      val oldExif = ExifInterface(originalPath)
+      val newExif = ExifInterface(compressedPath)
+
+      var hasChanges = false
+
+      for (tag in EXIF_TAGS_TO_COPY) {
+        val value = oldExif.getAttribute(tag)
+        if (value != null) {
+          newExif.setAttribute(tag, value)
+          hasChanges = true
+        }
+      }
+
+      if (hasChanges) {
+        newExif.saveAttributes()
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
   }
 }

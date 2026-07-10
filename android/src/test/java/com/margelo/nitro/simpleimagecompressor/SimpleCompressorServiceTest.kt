@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
+import androidx.exifinterface.media.ExifInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -137,7 +138,7 @@ class SimpleCompressorServiceTest {
     val originalSize = testFile.length()
     val compressedSize = resultFile.length()
 
-    assert(compressedSize > 0 ) {"Compressed file should not be empty"}
+    assert(compressedSize > 0) { "Compressed file should not be empty" }
     assert(originalSize > compressedSize)
     testFile.delete()
   }
@@ -186,7 +187,7 @@ class SimpleCompressorServiceTest {
     )
 
     val resultOptions = readImageFile(result.uri).second
-    assertEquals(1000  , resultOptions.outWidth)
+    assertEquals(1000, resultOptions.outWidth)
     assertEquals(750, resultOptions.outHeight)
     testFile.delete()
   }
@@ -223,5 +224,69 @@ class SimpleCompressorServiceTest {
     testFile.delete()
     pngFile.delete()
     webpFile.delete()
+  }
+
+  @Test
+  fun `test compress preserves EXIF metadata for JPEG`() {
+    val testFile = createTestImageFile(100, 100)
+
+    val originalExif = ExifInterface(testFile.absolutePath)
+    originalExif.setAttribute(ExifInterface.TAG_MAKE, "TestCameraBrand")
+    originalExif.setAttribute(ExifInterface.TAG_MODEL, "TestCameraModel")
+    originalExif.setAttribute(ExifInterface.TAG_DATETIME, "2023:10:25 12:00:00")
+    originalExif.saveAttributes()
+
+    val result = SimpleCompressorService.compress(
+      sourceUri = "file://${testFile.absolutePath}",
+      quality = 0.8,
+      format = OutputCompressedFormat.JPEG
+    )
+
+    val compressedFilePath = result.uri.removePrefix("file://")
+    val compressedExif = ExifInterface(compressedFilePath)
+
+    assertEquals("TestCameraBrand", compressedExif.getAttribute(ExifInterface.TAG_MAKE))
+    assertEquals("TestCameraModel", compressedExif.getAttribute(ExifInterface.TAG_MODEL))
+    assertEquals("2023:10:25 12:00:00", compressedExif.getAttribute(ExifInterface.TAG_DATETIME))
+
+    testFile.delete()
+    File(compressedFilePath).delete()
+  }
+
+  @Test
+  fun `test compress applies EXIF orientation and swaps dimensions`() {
+    val testFile = createTestImageFile(4000, 2000)
+
+    val originalExif = ExifInterface(testFile.absolutePath)
+    originalExif.setAttribute(
+      ExifInterface.TAG_ORIENTATION,
+      ExifInterface.ORIENTATION_ROTATE_90.toString()
+    )
+    originalExif.saveAttributes()
+
+    val result = SimpleCompressorService.compress(
+      sourceUri = "file://${testFile.absolutePath}",
+      quality = 0.8,
+      maxWidth = 500,
+      maxHeight = 1000,
+      format = OutputCompressedFormat.JPEG
+    )
+
+    val (resultFile, resultOptions) = readImageFile(result.uri)
+
+    assertEquals(500, resultOptions.outWidth)
+    assertEquals(1000, resultOptions.outHeight)
+
+    // Check EEXIF
+    val compressedExif = ExifInterface(resultFile.absolutePath)
+    val finalOrientation = compressedExif.getAttributeInt(
+      ExifInterface.TAG_ORIENTATION,
+      ExifInterface.ORIENTATION_NORMAL
+    )
+
+    assert(finalOrientation == ExifInterface.ORIENTATION_UNDEFINED || finalOrientation == ExifInterface.ORIENTATION_NORMAL)
+
+    testFile.delete()
+    resultFile.delete()
   }
 }

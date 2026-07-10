@@ -98,8 +98,10 @@ export default function App() {
     setIsCompressing(true);
     try {
       const options: CompressOptions = {
-        quality: 1.0,
-        format: 'webp-lossless',
+        quality: 0.5,
+        format: 'jpg',
+        maxHeight: 1000,
+        maxWidth: 500,
       };
 
       console.log('Starting compression with options:', options);
