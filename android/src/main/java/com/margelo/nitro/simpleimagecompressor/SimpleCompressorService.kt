@@ -38,7 +38,7 @@ object SimpleCompressorService {
     )
 
     val scaled = scaleBitmap(source, targetWidth, targetHeight)
-    val qualityInt = (quality * 100).toInt().coerceIn(0, 100)
+    val qualityInt = resolveQuality(quality, format)
     val compressFormat = resolveCompressFormat(format)
     val extension = resolveFileExtension(format)
     val cacheDir = File(System.getProperty("java.io.tmpdir") ?: "/tmp")
@@ -65,7 +65,7 @@ object SimpleCompressorService {
     if (!file.exists())
       throw ImageCompressorException.FileNotFound()
 
-    if(!file.canRead())
+    if (!file.canRead())
       throw ImageCompressorException.CannotReadResource()
 
     return file.absolutePath
@@ -152,15 +152,31 @@ object SimpleCompressorService {
     return scaled
   }
 
+  private fun resolveQuality(quality: Double, format: OutputCompressedFormat): Int {
+    // Force quality to 100 to 100 for WEBP_LOSSLESS on older Android versions (API < 30)
+    if (format == OutputCompressedFormat.WEBP_LOSSLESS && Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+      return 100
+    return (quality * 100).toInt().coerceIn(0, 100)
+  }
+
   private fun resolveCompressFormat(format: OutputCompressedFormat): Bitmap.CompressFormat {
     return when (format) {
       OutputCompressedFormat.PNG -> Bitmap.CompressFormat.PNG
       OutputCompressedFormat.WEBP -> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-          Bitmap.CompressFormat.WEBP_LOSSY // API: 30
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API >= 30
+          Bitmap.CompressFormat.WEBP_LOSSY
         } else {
           @Suppress("DEPRECATION")
-          Bitmap.CompressFormat.WEBP // API < 30
+          Bitmap.CompressFormat.WEBP
+        }
+      }
+
+      OutputCompressedFormat.WEBP_LOSSLESS -> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          Bitmap.CompressFormat.WEBP_LOSSLESS
+        } else {
+          @Suppress("DEPRECATION")
+          Bitmap.CompressFormat.WEBP
         }
       }
 
@@ -171,9 +187,8 @@ object SimpleCompressorService {
   private fun resolveFileExtension(format: OutputCompressedFormat): String {
     return when (format) {
       OutputCompressedFormat.PNG -> ".png"
-      OutputCompressedFormat.WEBP -> ".webp"
-      OutputCompressedFormat.JPG,
-      OutputCompressedFormat.JPEG -> ".jpg"
+      OutputCompressedFormat.WEBP, OutputCompressedFormat.WEBP_LOSSLESS -> ".webp"
+      OutputCompressedFormat.JPG, OutputCompressedFormat.JPEG -> ".jpg"
     }
   }
 
@@ -190,13 +205,13 @@ object SimpleCompressorService {
 
     val fos = try {
       FileOutputStream(outputFile)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       throw ImageCompressorException.CannotCreateDest()
     }
 
     fos.use {
       val success = bitMap.compress(compressFormat, quality, it)
-      if(!success) throw ImageCompressorException.WriteFailed()
+      if (!success) throw ImageCompressorException.WriteFailed()
     }
     return outputFile
   }
