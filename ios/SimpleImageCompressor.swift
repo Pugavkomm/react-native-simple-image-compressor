@@ -31,14 +31,16 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
       let maxWidth = options.maxWidth.map { Int($0) }
       let maxHeight = options.maxHeight.map { Int($0) }
 
-      let formatStr: String
+      let imageFormat: ImageFormat
       switch options.format {
       case .png:
-        formatStr = "png"
+        imageFormat = .png
       case .webp:
-        formatStr = "webp"
+        imageFormat = .webp
+      case .webpLossless:
+        imageFormat = .webpLossless
       default:
-        formatStr = "jpg"
+        imageFormat = .jpg
       }
 
       let compressedUrl = try ImageCompressorService.compress(
@@ -46,7 +48,7 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
         quality: quality,
         maxWidth: maxWidth,
         maxHeight: maxHeight,
-        format: formatStr
+        imageFormat: imageFormat
       )
       return CompressedResult(uri: compressedUrl.absoluteString)
     }

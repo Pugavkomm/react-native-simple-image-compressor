@@ -98,8 +98,8 @@ export default function App() {
     setIsCompressing(true);
     try {
       const options: CompressOptions = {
-        quality: 0.1,
-        format: 'jpeg',
+        quality: 0.0,
+        format: 'webp',
       };
 
       console.log('Starting compression with options:', options);

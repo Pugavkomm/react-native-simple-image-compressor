@@ -1,6 +1,7 @@
 import type { HybridObject } from 'react-native-nitro-modules';
 
-export type OutputCompressedFormat = 'jpg' | 'png' | 'jpeg' | 'webp';
+export type OutputCompressedFormat =
+  'jpg' | 'png' | 'jpeg' | 'webp' | 'webp-lossless';
 
 export interface CompressedResult {
   uri: string;

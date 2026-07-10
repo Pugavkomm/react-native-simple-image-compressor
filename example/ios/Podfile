@@ -16,6 +16,11 @@ end
 
 target 'SimpleImageCompressorExample' do
   config = use_native_modules!
+  # pod 'SimpleImageCompressor', :path => '../node_modules/react-native-simple-image-compressor', :subspecs => ['WebP']
+  if ENV['INCLUDE_WEBP'] == '1'
+    pod 'SimpleImageCompressor', :path => '../..', :subspecs => ['WebP']
+    pod 'libwebp', :modular_headers => true
+  end
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -30,5 +35,11 @@ target 'SimpleImageCompressorExample' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+  end
+end
+
+target 'SimpleImageCompressorTests' do
+  if ENV['INCLUDE_WEBP'] == '1'
+    pod 'libwebp', :modular_headers => true
   end
 end
