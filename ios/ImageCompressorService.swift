@@ -283,11 +283,20 @@ struct ImageCompressorService {
     guard
       let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
         as? [CFString: Any],
-      let width = properties[kCGImagePropertyPixelWidth] as? Int,
-      let height = properties[kCGImagePropertyPixelHeight] as? Int
+      var width = properties[kCGImagePropertyPixelWidth] as? Int,
+      var height = properties[kCGImagePropertyPixelHeight] as? Int
     else {
       return nil
     }
+
+    if let orientation = properties[kCGImagePropertyOrientation] as? Int {
+      if orientation >= 5 && orientation <= 8 {
+        let temp = width
+        width = height
+        height = temp
+      }
+    }
+
     return (width, height)
   }
 

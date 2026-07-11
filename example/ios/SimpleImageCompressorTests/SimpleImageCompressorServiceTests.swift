@@ -6,7 +6,9 @@ final class SimpleImageCompressorTests: XCTestCase {
   private let exptectedDomainName = "ImageCompressor"
   private let fakeUrl = URL(fileURLWithPath: "some_fake_ulr")
 
-  private func createTestImage(width: Int, height: Int) -> URL {
+  private func createTestImage(width: Int, height: Int, rotation: Int? = nil)
+    -> URL
+  {
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let context = CGContext(
       data: nil,
@@ -33,7 +35,25 @@ final class SimpleImageCompressorTests: XCTestCase {
       1,
       nil
     )!
-    CGImageDestinationAddImage(dest, cgImg, nil)
+
+    var props: [CFString: Any] = [:]
+
+    if let rotation = rotation {
+      let exifOrientation: Int
+      switch rotation {
+      case 90:
+        exifOrientation = 6
+      case 180:
+        exifOrientation = 3
+      case 270, -90:
+        exifOrientation = 8
+      default:
+        exifOrientation = 1
+      }
+      props[kCGImagePropertyOrientation] = exifOrientation
+    }
+
+    CGImageDestinationAddImage(dest, cgImg, props as CFDictionary)
     CGImageDestinationFinalize(dest)
 
     return url
@@ -359,6 +379,32 @@ final class SimpleImageCompressorTests: XCTestCase {
         .invalidTargetParameter
       )
     }
+  }
+
+  func testCompress_appliesExifOrientation_andSwapDimensions() throws {
+    let testUrl = createTestImage(width: 4000, height: 2000, rotation: 90)
+
+    let resultUrl = try ImageCompressorService.compress(
+      sourceUrl: testUrl,
+      quality: 0.8,
+      maxWidth: 500,
+      maxHeight: 1000,
+      imageFormat: .jpg
+    )
+
+    let source = CGImageSourceCreateWithURL(resultUrl as CFURL, nil)!
+    let props =
+      CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [CFString: Any]
+
+    let resWidth = props[kCGImagePropertyPixelWidth] as! Int
+    let resHeight = props[kCGImagePropertyPixelHeight] as! Int
+
+    XCTAssertEqual(resWidth, 500)
+    XCTAssertEqual(resHeight, 1000)
+
+    let finalOrientation = props[kCGImagePropertyOrientation] as? Int ?? 1
+    XCTAssertEqual(finalOrientation, 1)
+
   }
 
 }
