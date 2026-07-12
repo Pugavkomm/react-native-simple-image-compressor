@@ -1,3 +1,4 @@
+import ImageIO
 import UniformTypeIdentifiers
 import XCTest
 
@@ -6,7 +7,12 @@ final class SimpleImageCompressorTests: XCTestCase {
   private let exptectedDomainName = "ImageCompressor"
   private let fakeUrl = URL(fileURLWithPath: "some_fake_ulr")
 
-  private func createTestImage(width: Int, height: Int, rotation: Int? = nil)
+  private func createTestImage(
+    width: Int,
+    height: Int,
+    rotation: Int? = nil,
+    metadata: [CFString: Any]? = nil
+  )
     -> URL
   {
     let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -36,7 +42,7 @@ final class SimpleImageCompressorTests: XCTestCase {
       nil
     )!
 
-    var props: [CFString: Any] = [:]
+    var props: [CFString: Any] = metadata ?? [:]
 
     if let rotation = rotation {
       let exifOrientation: Int
@@ -57,14 +63,6 @@ final class SimpleImageCompressorTests: XCTestCase {
     CGImageDestinationFinalize(dest)
 
     return url
-  }
-
-  override func setUpWithError() throws {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-  }
-
-  override func tearDownWithError() throws {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
   }
 
   // MARK: - calculateTargetDimension
@@ -403,8 +401,45 @@ final class SimpleImageCompressorTests: XCTestCase {
     XCTAssertEqual(resHeight, 1000)
 
     let finalOrientation = props[kCGImagePropertyOrientation] as? Int ?? 1
+
     XCTAssertEqual(finalOrientation, 1)
 
+  }
+
+  func testCompress_preservesExifMetadata() throws {
+    let expectedCamera = "Apple iPhone 30 pro"
+    let fakeMetadata: [CFString: Any] = [
+      kCGImagePropertyTIFFDictionary: [
+        kCGImagePropertyTIFFModel: expectedCamera
+      ]
+    ]
+
+    let testUrl = createTestImage(
+      width: 1000,
+      height: 1000,
+      metadata: fakeMetadata
+    )
+
+    let resultUrl = try ImageCompressorService.compress(
+      sourceUrl: testUrl,
+      quality: 0.7,
+      maxWidth: 500,
+      maxHeight: 500,
+      imageFormat: .jpg
+    )
+
+    let source = CGImageSourceCreateWithURL(resultUrl as CFURL, nil)!
+    let props =
+      CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [CFString: Any]
+
+    let tiffDict = props[kCGImagePropertyTIFFDictionary] as? [CFString: Any]
+    let actualCamera = tiffDict?[kCGImagePropertyTIFFModel] as? String
+
+    XCTAssertEqual(
+      actualCamera,
+      expectedCamera,
+      "EXIF Camera Model should be preserved after compression"
+    )
   }
 
 }

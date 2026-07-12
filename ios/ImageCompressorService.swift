@@ -87,6 +87,9 @@ struct ImageCompressorService {
     // Read source
     let source = try readSource(sourceUrl: sourceUrl)
 
+    // EXIF
+    let originalProps = prepareEXIF(source: source)
+
     // Down sampling
     guard let dimensions = getImageDimensions(from: source) else {
       throw ImageCompressorError.cannotReadDimensions
@@ -133,7 +136,8 @@ struct ImageCompressorService {
         image: downSampleImage,
         to: destinationUrl,
         utType: formatDetails.utType,
-        quality: quality
+        quality: quality,
+        metadata: originalProps,
       )
     }
 
@@ -144,7 +148,8 @@ struct ImageCompressorService {
     image: CGImage,
     to url: URL,
     utType: CFString,
-    quality: Double
+    quality: Double,
+    metadata: [CFString: Any]
   ) throws {
     guard
       let destination = CGImageDestinationCreateWithURL(
@@ -156,7 +161,10 @@ struct ImageCompressorService {
     else {
       throw ImageCompressorError.cannotCreateDestination
     }
-    let destinationOptions = createDestinationOptions(quality: quality)
+    let destinationOptions = createDestinationOptions(
+      quality: quality,
+      metadata: metadata
+    )
     CGImageDestinationAddImage(destination, image, destinationOptions)
     guard CGImageDestinationFinalize(destination) else {
       throw ImageCompressorError.writeFailed
@@ -240,11 +248,14 @@ struct ImageCompressorService {
 
   // MARK: - Processing Helpers
 
-  private static func createDestinationOptions(quality: Double) -> CFDictionary
-  {
-    return [
-      kCGImageDestinationLossyCompressionQuality as String: quality
-    ] as CFDictionary
+  private static func createDestinationOptions(
+    quality: Double,
+    metadata: [CFString: Any]
+  ) -> CFDictionary {
+    var options = metadata
+
+    options[kCGImageDestinationLossyCompressionQuality] = quality
+    return options as CFDictionary
   }
 
   private static func createDownSampleOptions(maxDimension: Int) -> CFDictionary
@@ -307,6 +318,22 @@ struct ImageCompressorService {
       throw ImageCompressorError.cannotReadSource
     }
     return source
+  }
+
+  private static func prepareEXIF(source: CGImageSource) -> [CFString: Any] {
+    var originalProps =
+      CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+      ?? [:]
+    originalProps.removeValue(forKey: kCGImagePropertyOrientation)
+    originalProps.removeValue(forKey: kCGImagePropertyPixelWidth)
+    originalProps.removeValue(forKey: kCGImagePropertyPixelHeight)
+    if var tiffDict = originalProps[kCGImagePropertyTIFFDictionary]
+      as? [CFString: Any]
+    {
+      tiffDict.removeValue(forKey: kCGImagePropertyOrientation)
+      originalProps[kCGImagePropertyTIFFDictionary] = tiffDict
+    }
+    return originalProps
   }
 
   private static func downSampling(
