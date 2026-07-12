@@ -2,16 +2,19 @@
 
 Contributions are always welcome, no matter how large or small!
 
-We want this community to be friendly and respectful to each other. Please follow it in all your interactions with the project. Before contributing, please read the [code of conduct](./CODE_OF_CONDUCT.md).
+We want this community to be friendly and respectful to each other. Please follow it in all your interactions with the
+project. Before contributing, please read the [code of conduct](./CODE_OF_CONDUCT.md).
 
 ## Development workflow
 
-This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/features/workspaces). It contains the following packages:
+This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/features/workspaces). It contains the
+following packages:
 
 - The library package in the root directory.
 - An example app in the `example/` directory.
 
-To get started with the project, make sure you have the correct version of [Node.js](https://nodejs.org/) installed. See the [`.nvmrc`](./.nvmrc) file for the version used in this project.
+To get started with the project, make sure you have the correct version of [Node.js](https://nodejs.org/) installed. See
+the [`.nvmrc`](./.nvmrc) file for the version used in this project.
 
 Run `yarn` in the root directory to install the required dependencies for each package:
 
@@ -19,11 +22,14 @@ Run `yarn` in the root directory to install the required dependencies for each p
 yarn
 ```
 
-> Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development without manually migrating.
+> Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development
+> without manually migrating.
 
-This project uses Nitro Modules. If you're not familiar with how Nitro works, make sure to check the [Nitro Modules Docs](https://nitro.margelo.com/).
+This project uses Nitro Modules. If you're not familiar with how Nitro works, make sure to check
+the [Nitro Modules Docs](https://nitro.margelo.com/).
 
-You need to run [Nitrogen](https://nitro.margelo.com/docs/nitrogen) to generate the boilerplate code required for this project. The example app will not build without this step.
+You need to run [Nitrogen](https://nitro.margelo.com/docs/nitrogen) to generate the boilerplate code required for this
+project. The example app will not build without this step.
 
 Run **Nitrogen** in following cases:
 
@@ -38,11 +44,17 @@ yarn nitrogen
 
 The [example app](/example/) demonstrates usage of the library. You need to run it to test any changes you make.
 
-It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
+It is configured to use the local version of the library, so any changes you make to the library's source code will be
+reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a
+rebuild, but native code changes will require a rebuild of the example app.
 
-If you want to use Android Studio or Xcode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `example/ios/SimpleImageCompressorExample.xcworkspace` in Xcode and find the source files at `Pods > Development Pods > react-native-simple-image-compressor`.
+If you want to use Android Studio or Xcode to edit the native code, you can open the `example/android` or `example/ios`
+directories respectively in those editors. To edit the Objective-C or Swift files, open
+`example/ios/SimpleImageCompressorExample.xcworkspace` in Xcode and find the source files at
+`Pods > Development Pods > react-native-simple-image-compressor`.
 
-To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `react-native-simple-image-compressor` under `Android`.
+To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at
+`react-native-simple-image-compressor` under `Android`.
 
 You can use various commands from the root directory to work with the project.
 
@@ -102,6 +114,19 @@ Remember to add tests for your change if possible. Run the unit tests by:
 yarn test
 ```
 
+To run the Android native unit tests, execute the following commands:
+
+```sh
+cd example/android
+./gradlew :react-native-simple-image-compressor:testDebugUnitTes
+```
+
+To run the iOS native unit tests, execute the following commands:
+
+```sh
+cd example/ios
+xcodebuild test -workspace SimpleImageCompressorExample.xcworkspace -scheme SimpleImageCompressorExample -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -only-testing:SimpleImageCompressorTests
+```
 
 ### Commit message convention
 
@@ -116,17 +141,16 @@ We follow the [conventional commits specification](https://www.conventionalcommi
 
 Our pre-commit hooks verify that your commit message matches this format when committing.
 
-
 ### Publishing to npm
 
-We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles
+common tasks like bumping version based on semver, creating tags and releases etc.
 
 To publish new versions, run the following:
 
 ```sh
 yarn release
 ```
-
 
 ### Scripts
 
@@ -141,10 +165,11 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn example ios`: run the example app on iOS.
   - `yarn example web`: run the example app on Web.
 - `yarn example build:web`: build the example app for Web.
-  
+
 ### Sending a pull request
 
-> **Working on your first pull request?** You can learn how from this _free_ series: [How to Contribute to an Open Source Project on GitHub](https://app.egghead.io/playlists/how-to-contribute-to-an-open-source-project-on-github).
+> **Working on your first pull request?** You can learn how from this _free_
+> series: [How to Contribute to an Open Source Project on GitHub](https://app.egghead.io/playlists/how-to-contribute-to-an-open-source-project-on-github).
 
 When you're sending a pull request:
 
