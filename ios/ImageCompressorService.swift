@@ -128,7 +128,8 @@ struct ImageCompressorService {
           image: downSampleImage,
           to: destinationUrl,
           utType: formatDetails.utType,
-          quality: quality
+          quality: quality,
+          metadata: originalProps,
         )
       #endif
     default:
