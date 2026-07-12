@@ -1,6 +1,6 @@
 {
   "name": "react-native-simple-image-compressor",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.0",
   "description": "Simple image compressor",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
