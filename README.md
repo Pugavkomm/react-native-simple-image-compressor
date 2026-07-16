@@ -18,6 +18,7 @@ Simple image compressor
     * [Android](#android)
     * [iOS](#ios)
   * [Codec `libwebp`](#codec-libwebp)
+  * [Additional information](#additional-information)
   * [Contributing](#contributing)
   * [License](#license)
   * [TODO](#todo)
@@ -115,17 +116,18 @@ in [CompressOptions](#compressoptions)
 Currently, only one compression method is available: `compressImage`. It accepts a `uri` and `options` of type
 `CompressOptions` (see all available options below).
 
-| Option name | Type                                              | Required | Description                                                                                                                                                                                                                    |
-|-------------|---------------------------------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| quality     | `number`                                          | YES      | Compression quality. Valid values range from `0.0` (lowest quality and minimal size) to `1.0` (highest quality and maximum size). For more details on supported formats, see [OutputCompressedFormat](#outputcompressedformat) |
-| maxWidth    | `number`                                          | NO       | The maximum width of the converted image.                                                                                                                                                                                      |
-| maxHeight   | `number`                                          | NO       | The maximum height of the converted image.                                                                                                                                                                                     |
-| format      | [OutputCompressedFormat](#outputcompressedformat) | YES      | Output image format.                                                                                                                                                                                                           |
+| Option name            | Type      | Required | Description                                                                                                                                                                                                                    |
+|------------------------|-----------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| quality                | `number`  | YES      | Compression quality. Valid values range from `0.0` (lowest quality and minimal size) to `1.0` (highest quality and maximum size). For more details on supported formats, see [OutputCompressedFormat](#outputcompressedformat) |
+| maxWidth               | `number`  | NO       | The maximum width of the converted image.                                                                                                                                                                                      |
+| maxHeight              | `number`  | NO       | The maximum height of the converted image.                                                                                                                                                                                     |
+| enablePhysicalRotation | `boolean` | NO       | if true, physically rotates the image pixels based on EXIF orientation. Read [this detailed guide with visual examples to understand hot physical vs logical dimensions work under the hood](docs/resizeExplanation)           |
 
 ## EXIF metadata
 
 > **Important**: The following information applies only to `jpeg` and `jpg` output formats (
-> see [OutputCompressedFormat](#output-formats)). Other output formats (`png`, `webp`, `webp-lossless`) do not support
+> see [OutputCompressedFormat](#outputcompressedformat)). Other output formats (`png`, `webp`, `webp-lossless`) do not
+> support
 > this feature
 
 ## Dependencies
@@ -136,7 +138,7 @@ Exifinterface [androidx.exifinterface:exifinterface:1.4.2](https://developer.and
 
 ### iOS
 
-WebP codec [libwebp 1.5.0](https://cocoapods.org/pods/libwebp) ([Support webp on iOS](#support-webp-on-ios)).
+WebP codec [libwebp 1.5.0](https://cocoapods.org/pods/libwebp) ([Support webp on iOS](#enable-support-webp-on-ios)).
 
 ## Codec `libwebp`
 
@@ -144,6 +146,10 @@ This library aims to provide consistent functionality across Android and iOS. Wh
 encoding via the `Bitmap` class, native WebP encoding on iOS is still unavailable. To bridge this gap and provide full
 WebP
 support on iOS, this library integrates the `libwebp` codec.
+
+## Additional information
+
+- [Resize explanation](docs/resizeExplanation.md)
 
 ## Contributing
 

@@ -48,7 +48,8 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
         quality: quality,
         maxWidth: maxWidth,
         maxHeight: maxHeight,
-        imageFormat: imageFormat
+        imageFormat: imageFormat,
+        enablePhysicalRotation: options.enablePhysicalRotation ?? false
       )
       return CompressedResult(uri: compressedUrl.absoluteString)
     }

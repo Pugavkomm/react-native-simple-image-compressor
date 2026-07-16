@@ -53,7 +53,8 @@ object SimpleCompressorService {
     quality: Double,
     maxWidth: Int? = null,
     maxHeight: Int? = null,
-    format: OutputCompressedFormat
+    format: OutputCompressedFormat,
+    enablePhysicalRotation: Boolean = false,
   ): CompressedResult {
     //  Validation
     isValidParameters(quality, maxWidth, maxHeight)
@@ -61,9 +62,9 @@ object SimpleCompressorService {
     //  Read source
     val sourceOptions = decodeBounds(filePath)
     var (height: Int, width: Int) = sourceOptions.run { outHeight to outWidth }
-    val rotationDeg = getRotationDegrees(filePath)
+    val actualRotationDeg = getRotationDegrees(filePath)
 
-    if (rotationDeg == 90 || rotationDeg == 270) {
+    if (actualRotationDeg == 90 || actualRotationDeg == 270) {
       val temp = width
       width = height
       height = temp
@@ -82,14 +83,25 @@ object SimpleCompressorService {
       maxWidth,
       maxHeight
     )
-    val transformed = scaleAndRotateBitmap(source, targetWidth, targetHeight, rotationDeg)
+
+    val rotationToApply = if (enablePhysicalRotation) actualRotationDeg else 0
+    var physicalTargetWidth = targetWidth
+    var physicalTargetHeight = targetHeight
+
+    if (!enablePhysicalRotation && (actualRotationDeg == 90 || actualRotationDeg == 270)) {
+      physicalTargetWidth = targetHeight
+      physicalTargetHeight = targetWidth
+    }
+
+    val transformed =
+      scaleAndRotateBitmap(source, physicalTargetWidth, physicalTargetHeight, rotationToApply)
     val qualityInt = resolveQuality(quality, format)
     val compressFormat = resolveCompressFormat(format)
     val extension = resolveFileExtension(format)
     val cacheDir = File(System.getProperty("java.io.tmpdir") ?: "/tmp")
     val resultFile = compressToFile(transformed, compressFormat, extension, qualityInt, cacheDir)
     if (format == OutputCompressedFormat.JPEG || format == OutputCompressedFormat.JPG) {
-      copyExifMetadata(filePath, resultFile.absolutePath)
+      copyExifMetadata(filePath, resultFile.absolutePath, !enablePhysicalRotation)
     }
 
     return CompressedResult(uri = "file://${resultFile.absolutePath}")
@@ -308,20 +320,31 @@ object SimpleCompressorService {
     return outputFile
   }
 
-  private fun copyExifMetadata(originalPath: String, compressedPath: String) {
+  private fun copyExifMetadata(
+    originalPath: String,
+    compressedPath: String,
+    includeOrientation: Boolean
+  ) {
     try {
       val oldExif = ExifInterface(originalPath)
       val newExif = ExifInterface(compressedPath)
 
       var hasChanges = false
 
-      for (tag in EXIF_TAGS_TO_COPY) {
+      val tagsToCopy = if (includeOrientation) {
+        EXIF_TAGS_TO_COPY + ExifInterface.TAG_ORIENTATION
+      } else {
+        EXIF_TAGS_TO_COPY
+      }
+      for (tag in tagsToCopy) {
         val value = oldExif.getAttribute(tag)
         if (value != null) {
           newExif.setAttribute(tag, value)
           hasChanges = true
         }
       }
+
+    
 
       if (hasChanges) {
         newExif.saveAttributes()

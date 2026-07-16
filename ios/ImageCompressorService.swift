@@ -65,6 +65,7 @@ struct ImageCompressorService {
   ///   - maxWidth: An optional maximum width boundary. If `nil`, the width is not constrained.
   ///   - maxHeight: An optional maximum height boundary. If `nil`, the height is not constrained.
   ///   - imageFormat: The target image format.
+  ///   - enablePhysicalRotation: If true, physically rotates the image pixels based on EXIF orientation.
   /// - Returns: The local file URL of the compressed image stored in the temporary directory.
   /// - Throws: An `Error` if file validation, reading, downsampling, or writing to disk fails.
   static func compress(
@@ -72,7 +73,8 @@ struct ImageCompressorService {
     quality: Double,
     maxWidth: Int?,
     maxHeight: Int?,
-    imageFormat: ImageFormat
+    imageFormat: ImageFormat,
+    enablePhysicalRotation: Bool = false
   ) throws -> URL {
 
     // Validation
@@ -88,7 +90,10 @@ struct ImageCompressorService {
     let source = try readSource(sourceUrl: sourceUrl)
 
     // EXIF
-    let originalProps = prepareEXIF(source: source)
+    let originalProps = prepareEXIF(
+      source: source,
+      includeOrientation: !enablePhysicalRotation
+    )
 
     // Down sampling
     guard let dimensions = getImageDimensions(from: source) else {
@@ -103,7 +108,8 @@ struct ImageCompressorService {
 
     let downSampleImage = try downSampling(
       from: source,
-      maxDimension: maxDimension
+      maxDimension: maxDimension,
+      rotate: enablePhysicalRotation
     )
 
     let formatDetails = getFormatDetails(for: imageFormat)
@@ -259,12 +265,13 @@ struct ImageCompressorService {
     return options as CFDictionary
   }
 
-  private static func createDownSampleOptions(maxDimension: Int) -> CFDictionary
+  private static func createDownSampleOptions(maxDimension: Int, rotate: Bool)
+    -> CFDictionary
   {
     return [
       kCGImageSourceCreateThumbnailFromImageAlways: true,
       kCGImageSourceShouldCacheImmediately: true,
-      kCGImageSourceCreateThumbnailWithTransform: true,  // TODO: external parameter
+      kCGImageSourceCreateThumbnailWithTransform: rotate,
       kCGImageSourceThumbnailMaxPixelSize: maxDimension,
     ] as CFDictionary
   }
@@ -321,27 +328,39 @@ struct ImageCompressorService {
     return source
   }
 
-  private static func prepareEXIF(source: CGImageSource) -> [CFString: Any] {
+  private static func prepareEXIF(
+    source: CGImageSource,
+    includeOrientation: Bool
+  ) -> [CFString: Any] {
     var originalProps =
       CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
       ?? [:]
-    originalProps.removeValue(forKey: kCGImagePropertyOrientation)
+
     originalProps.removeValue(forKey: kCGImagePropertyPixelWidth)
     originalProps.removeValue(forKey: kCGImagePropertyPixelHeight)
-    if var tiffDict = originalProps[kCGImagePropertyTIFFDictionary]
-      as? [CFString: Any]
-    {
-      tiffDict.removeValue(forKey: kCGImagePropertyOrientation)
-      originalProps[kCGImagePropertyTIFFDictionary] = tiffDict
+
+    if !includeOrientation {
+      originalProps.removeValue(forKey: kCGImagePropertyOrientation)
+      if var tiffDict = originalProps[kCGImagePropertyTIFFDictionary]
+        as? [CFString: Any]
+      {
+        tiffDict.removeValue(forKey: kCGImagePropertyOrientation)
+        originalProps[kCGImagePropertyTIFFDictionary] = tiffDict
+      }
     }
+
     return originalProps
   }
 
   private static func downSampling(
     from source: CGImageSource,
-    maxDimension: Int
+    maxDimension: Int,
+    rotate: Bool
   ) throws -> CGImage {
-    let downsampleOptions = createDownSampleOptions(maxDimension: maxDimension)
+    let downsampleOptions = createDownSampleOptions(
+      maxDimension: maxDimension,
+      rotate: rotate
+    )
     guard
       let downsampleImage = CGImageSourceCreateThumbnailAtIndex(
         source,
