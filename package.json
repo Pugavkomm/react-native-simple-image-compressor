@@ -48,7 +48,19 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "png",
+    "webp",
+    "jpeg",
+    "png",
+    "libwebp",
+    "image",
+    "compression",
+    "compress",
+    "resize",
+    "exif",
+    "nitro",
+    "react-native-nitro"
   ],
   "repository": {
     "type": "git",
