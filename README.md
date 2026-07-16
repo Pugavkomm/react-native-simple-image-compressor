@@ -4,6 +4,7 @@ Simple image compressor
 
 
 <!-- TOC -->
+
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
   * [Abstract](#abstract)
   * [Features](#features)
@@ -22,6 +23,7 @@ Simple image compressor
   * [Contributing](#contributing)
   * [License](#license)
   * [TODO](#todo)
+
 <!-- TOC -->
 
 ## Abstract
@@ -111,7 +113,7 @@ in [CompressOptions](#compressoptions)
 > 10 (API 29) or lower, the library automatically falls back to standard `webp` encoding but forces the `quality`
 > parameter to `1.0` to emulate lossless compression as closely as possible.
 
-### CompressOptions
+## CompressOptions
 
 Currently, only one compression method is available: `compressImage`. It accepts a `uri` and `options` of type
 `CompressOptions` (see all available options below).
@@ -122,6 +124,16 @@ Currently, only one compression method is available: `compressImage`. It accepts
 | maxWidth               | `number`  | NO       | The maximum width of the converted image.                                                                                                                                                                                      |
 | maxHeight              | `number`  | NO       | The maximum height of the converted image.                                                                                                                                                                                     |
 | enablePhysicalRotation | `boolean` | NO       | if true, physically rotates the image pixels based on EXIF orientation. Read [this detailed guide with visual examples to understand hot physical vs logical dimensions work under the hood](docs/resizeExplanation)           |
+
+## CompressedResult
+
+The method `compressImage` returns a `CompressResult` object. See all available properties below:
+
+| Property name | Type     | Required | Descripton                                                                 |
+|---------------|----------|----------|----------------------------------------------------------------------------|
+| uri           | `string` | YES      | The local file URI of the compressed image (e.g., `file:///path/to/image`) |
+| width         | `number` | YES      | The width of the compressed image in pixels                                |
+| height        | `number` | YES      | The height of the compressed image in pixels                               |
 
 ## EXIF metadata
 

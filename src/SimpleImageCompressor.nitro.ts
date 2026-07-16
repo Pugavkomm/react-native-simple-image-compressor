@@ -5,6 +5,8 @@ export type OutputCompressedFormat =
 
 export interface CompressedResult {
   uri: string;
+  width: number;
+  height: number;
 }
 
 export interface CompressOptions {

@@ -104,7 +104,11 @@ object SimpleCompressorService {
       copyExifMetadata(filePath, resultFile.absolutePath, !enablePhysicalRotation)
     }
 
-    return CompressedResult(uri = "file://${resultFile.absolutePath}")
+    return CompressedResult(
+      uri = "file://${resultFile.absolutePath}",
+      width = physicalTargetWidth.toDouble(),
+      height = physicalTargetHeight.toDouble()
+    )
   }
 
   //  Validation
@@ -344,7 +348,7 @@ object SimpleCompressorService {
         }
       }
 
-    
+
 
       if (hasChanges) {
         newExif.saveAttributes()
