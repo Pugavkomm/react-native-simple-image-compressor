@@ -4,13 +4,10 @@ import type {
 } from './SimpleImageCompressor.nitro';
 
 export async function compressImage(
-  imageUri: string,
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  options: CompressOptions
+  _imageUri: string,
+  _options: CompressOptions
 ): Promise<CompressedResult> {
-  console.warn(
-    '[SimpleImageCompressor] Web is not supported yet. Returning original image URI.'
+  throw new Error(
+    '[SimpleImageCompressor] Web platform is not supported. Please implement your own web compression logic or conditionally call this method only on native platforms.'
   );
-  return { uri: imageUri };
 }

@@ -136,6 +136,9 @@ class SimpleCompressorServiceTest {
     assertEquals(4000, resultOptions.outWidth)
     assertEquals(3000, resultOptions.outHeight)
 
+    assertEquals(4000.0, result.width)
+    assertEquals(3000.0, result.height)
+
     val originalSize = testFile.length()
     val compressedSize = resultFile.length()
 
@@ -157,6 +160,9 @@ class SimpleCompressorServiceTest {
     val resultOptions = readImageFile(result.uri).second
     assertEquals(1000, resultOptions.outWidth)
     assertEquals(750, resultOptions.outHeight)
+
+    assertEquals(1000.0, result.width)
+    assertEquals(750.0, result.height)
     testFile.delete()
   }
 
@@ -173,6 +179,9 @@ class SimpleCompressorServiceTest {
     val resultOptions = readImageFile(result.uri).second
     assertEquals(2000, resultOptions.outWidth)
     assertEquals(1500, resultOptions.outHeight)
+
+    assertEquals(2000.0, result.width)
+    assertEquals(1500.0, result.height)
     testFile.delete()
   }
 
@@ -279,6 +288,9 @@ class SimpleCompressorServiceTest {
     assertEquals(500, resultOptions.outWidth)
     assertEquals(1000, resultOptions.outHeight)
 
+    assertEquals(500.0, result.width)
+    assertEquals(1000.0, result.height)
+
     // Check EEXIF
     val compressedExif = ExifInterface(resultFile.absolutePath)
     val finalOrientation = compressedExif.getAttributeInt(
@@ -317,6 +329,9 @@ class SimpleCompressorServiceTest {
 
     assertEquals(1000, resultOptions.outWidth)
     assertEquals(500, resultOptions.outHeight)
+
+    assertEquals(1000.0, result.width)
+    assertEquals(500.0, result.height)
 
     val compressedExif = ExifInterface(resultFile.absolutePath)
     val finalOrientation = compressedExif.getAttributeInt(

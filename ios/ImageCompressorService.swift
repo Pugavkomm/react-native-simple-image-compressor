@@ -2,6 +2,12 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
+public struct CompressResultWithMetadata {
+  var uri: URL
+  var height: Int
+  var width: Int
+}
+
 enum ImageFormat {
   case jpg
   case png
@@ -75,7 +81,7 @@ struct ImageCompressorService {
     maxHeight: Int?,
     imageFormat: ImageFormat,
     enablePhysicalRotation: Bool = false
-  ) throws -> URL {
+  ) throws -> CompressResultWithMetadata {
 
     // Validation
     try isValidParameters(
@@ -148,7 +154,7 @@ struct ImageCompressorService {
       )
     }
 
-    return destinationUrl
+    return CompressResultWithMetadata(uri: destinationUrl, height: downSampleImage.height, width: downSampleImage.width)
   }
 
   private static func writeWithImageIO(

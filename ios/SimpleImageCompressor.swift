@@ -43,7 +43,7 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
         imageFormat = .jpg
       }
 
-      let compressedUrl = try ImageCompressorService.compress(
+      let compressedResult = try ImageCompressorService.compress(
         sourceUrl: sourceUrl,
         quality: quality,
         maxWidth: maxWidth,
@@ -51,7 +51,11 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
         imageFormat: imageFormat,
         enablePhysicalRotation: options.enablePhysicalRotation ?? false
       )
-      return CompressedResult(uri: compressedUrl.absoluteString)
+      return CompressedResult(
+        uri: compressedResult.uri.absoluteString,
+        width: Double(compressedResult.width),
+        height: Double(compressedResult.height)
+      )
     }
   }
 }
