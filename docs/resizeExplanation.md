@@ -28,6 +28,18 @@ landscape, so a portrait photo might physically be stored sideways as `4000(W)x2
 **Logical (Viewable) Dimensions**: How the image appears on the screen. The camera adds an EXIF metadata tag (e.g., "
 Rotate 90"). Image viewers read this tag and rotate the image on the fly, showing it ti the user as `2000(W)x4000(H)`.
 
+> **Important Note: How bounds and rotation work together**
+> The library strictly separates the scaling logic from the physical file creation:
+>
+> 1. **Logical Constraints:** The `maxWidth` and `maxHeight` limits are **always** applied to the **logical** (viewable)
+     dimensions of the image. This ensures your limits work predictably (exactly as the user sees the photo), regardless
+     of how the camera sensor captured it.
+> 2. **Physical Saving:** The `enablePhysicalRotation` flag only decides **how** this scaled image is written back to
+     the disk.
+> - If `true`, the library physically rotates the pixels to match the logical view and clears the EXIF orientation.
+> - If `false`, the library scales the pixels but keeps them in their original sensor layout, preserving the EXIF  "
+    Rotate" tag so viewers can rotate it at render time.
+
 ## EXIF metadata & `enablePhysicalRotation`
 
 Suppose a user takes a photo in portrait orientation. The physical size of the photo captured by the camera sensor might

@@ -4,7 +4,6 @@ Simple image compressor
 
 
 <!-- TOC -->
-
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
   * [Abstract](#abstract)
   * [Features](#features)
@@ -13,7 +12,8 @@ Simple image compressor
   * [Usage](#usage)
   * [Input formats](#input-formats)
   * [OutputCompressedFormat](#outputcompressedformat)
-    * [CompressOptions](#compressoptions)
+  * [CompressOptions](#compressoptions)
+  * [CompressedResult](#compressedresult)
   * [EXIF metadata](#exif-metadata)
   * [Dependencies](#dependencies)
     * [Android](#android)
@@ -23,7 +23,6 @@ Simple image compressor
   * [Contributing](#contributing)
   * [License](#license)
   * [TODO](#todo)
-
 <!-- TOC -->
 
 ## Abstract
@@ -118,12 +117,12 @@ in [CompressOptions](#compressoptions)
 Currently, only one compression method is available: `compressImage`. It accepts a `uri` and `options` of type
 `CompressOptions` (see all available options below).
 
-| Option name            | Type      | Required | Description                                                                                                                                                                                                                    |
-|------------------------|-----------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| quality                | `number`  | YES      | Compression quality. Valid values range from `0.0` (lowest quality and minimal size) to `1.0` (highest quality and maximum size). For more details on supported formats, see [OutputCompressedFormat](#outputcompressedformat) |
-| maxWidth               | `number`  | NO       | The maximum width of the converted image.                                                                                                                                                                                      |
-| maxHeight              | `number`  | NO       | The maximum height of the converted image.                                                                                                                                                                                     |
-| enablePhysicalRotation | `boolean` | NO       | if true, physically rotates the image pixels based on EXIF orientation. Read [this detailed guide with visual examples to understand hot physical vs logical dimensions work under the hood](docs/resizeExplanation)           |
+| Option name            | Type      | Required | Description                                                                                                                                                                                                                          |
+|------------------------|-----------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| quality                | `number`  | YES      | Compression quality. Valid values range from `0.0` (lowest quality and minimal size) to `1.0` (highest quality and maximum size). For more details on supported formats, see [OutputCompressedFormat](#outputcompressedformat)       |
+| maxWidth               | `number`  | NO       | The maximum width of the converted image. Note: This boundary limit applies to the logical (viewable) width of the image, automatically taking EXIF orientation into account (see [Resize explanation](docs/resizeExplanation.md)).  |
+| maxHeight              | `number`  | NO       | The maximum height of the converted image. Note: This boundary limit applies to the logical (viewable) width of the image, automatically taking EXIF orientation into account (see [Resize explanation](docs/resizeExplanation.md)). |
+| enablePhysicalRotation | `boolean` | NO       | if true, physically rotates the image pixels based on EXIF orientation. Read [this detailed guide with visual examples to understand hot physical vs logical dimensions work under the hood](docs/resizeExplanation)                 |
 
 ## CompressedResult
 
@@ -176,7 +175,7 @@ MIT
 ## TODO
 
 - [ ] Add test for each input format (png, jpg, webp)
-- [ ] Add additional metadata to output obect
+- [ ] Add additional metadata to output object
 
 ---
 
