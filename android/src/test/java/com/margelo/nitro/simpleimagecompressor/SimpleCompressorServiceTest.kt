@@ -128,7 +128,8 @@ class SimpleCompressorServiceTest {
     val result = SimpleCompressorService.compress(
       sourceUri = "file://${testFile.absolutePath}",
       quality = 0.5,
-      format = OutputCompressedFormat.JPEG
+      format = OutputCompressedFormat.JPEG,
+      enablePhysicalRotation = true,
     )
 
     val (resultFile, resultOptions) = readImageFile(result.uri)
@@ -269,7 +270,8 @@ class SimpleCompressorServiceTest {
       quality = 0.8,
       maxWidth = 500,
       maxHeight = 1000,
-      format = OutputCompressedFormat.JPEG
+      format = OutputCompressedFormat.JPEG,
+      enablePhysicalRotation = true
     )
 
     val (resultFile, resultOptions) = readImageFile(result.uri)
@@ -285,6 +287,44 @@ class SimpleCompressorServiceTest {
     )
 
     assert(finalOrientation == ExifInterface.ORIENTATION_UNDEFINED || finalOrientation == ExifInterface.ORIENTATION_NORMAL)
+
+    testFile.delete()
+    resultFile.delete()
+  }
+
+  @Test
+  fun `test compress does not apply EXIF orientation and preserves it`() {
+    val testFile = createTestImageFile(4000, 2000)
+
+    val originalExif = ExifInterface(testFile.absolutePath)
+    originalExif.setAttribute(
+      ExifInterface.TAG_ORIENTATION,
+      ExifInterface.ORIENTATION_ROTATE_90.toString()
+    )
+    originalExif.saveAttributes()
+
+    val result = SimpleCompressorService.compress(
+      sourceUri = "file://${testFile.absolutePath}",
+      quality = 0.8,
+      maxWidth = 500,
+      maxHeight = 1000,
+      format = OutputCompressedFormat.JPEG,
+      enablePhysicalRotation = false
+    )
+
+    val (resultFile, resultOptions) = readImageFile(result.uri)
+
+
+    assertEquals(1000, resultOptions.outWidth)
+    assertEquals(500, resultOptions.outHeight)
+
+    val compressedExif = ExifInterface(resultFile.absolutePath)
+    val finalOrientation = compressedExif.getAttributeInt(
+      ExifInterface.TAG_ORIENTATION,
+      ExifInterface.ORIENTATION_NORMAL
+    )
+
+    assertEquals(ExifInterface.ORIENTATION_ROTATE_90, finalOrientation)
 
     testFile.delete()
     resultFile.delete()

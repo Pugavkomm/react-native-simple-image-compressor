@@ -387,7 +387,8 @@ final class SimpleImageCompressorTests: XCTestCase {
       quality: 0.8,
       maxWidth: 500,
       maxHeight: 1000,
-      imageFormat: .jpg
+      imageFormat: .jpg,
+      enablePhysicalRotation: true
     )
 
     let source = CGImageSourceCreateWithURL(resultUrl as CFURL, nil)!
@@ -403,7 +404,33 @@ final class SimpleImageCompressorTests: XCTestCase {
     let finalOrientation = props[kCGImagePropertyOrientation] as? Int ?? 1
 
     XCTAssertEqual(finalOrientation, 1)
+  }
 
+  func testCompress_doesNotApplyExifOrientation_andSwapDimensions() throws {
+    let testUrl = createTestImage(width: 4000, height: 2000, rotation: 90)
+
+    let resultUrl = try ImageCompressorService.compress(
+      sourceUrl: testUrl,
+      quality: 0.8,
+      maxWidth: 500,
+      maxHeight: 1000,
+      imageFormat: .jpg,
+      enablePhysicalRotation: false
+    )
+
+    let source = CGImageSourceCreateWithURL(resultUrl as CFURL, nil)!
+    let props =
+      CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [CFString: Any]
+
+    let resWidth = props[kCGImagePropertyPixelWidth] as! Int
+    let resHeight = props[kCGImagePropertyPixelHeight] as! Int
+
+    XCTAssertEqual(resWidth, 1000)
+    XCTAssertEqual(resHeight, 500)
+
+    let finalOrientation = props[kCGImagePropertyOrientation] as? Int ?? 1
+
+    XCTAssertEqual(finalOrientation, 6)
   }
 
   func testCompress_preservesExifMetadata() throws {

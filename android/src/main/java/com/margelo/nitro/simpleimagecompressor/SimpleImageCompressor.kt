@@ -12,7 +12,9 @@ class SimpleImageCompressor : HybridSimpleImageCompressorSpec() {
         options.quality,
         options.maxWidth?.toInt(),
         options.maxHeight?.toInt(),
-        options.format
+        options.format,
+         options.enablePhysicalRotation == true
+
       )
     }
   }
