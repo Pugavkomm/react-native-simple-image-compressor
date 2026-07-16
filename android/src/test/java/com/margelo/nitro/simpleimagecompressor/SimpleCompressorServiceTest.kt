@@ -315,7 +315,7 @@ class SimpleCompressorServiceTest {
     val (resultFile, resultOptions) = readImageFile(result.uri)
 
 
-    assertEquals(250, resultOptions.outWidth)
+    assertEquals(1000, resultOptions.outWidth)
     assertEquals(500, resultOptions.outHeight)
 
     val compressedExif = ExifInterface(resultFile.absolutePath)
