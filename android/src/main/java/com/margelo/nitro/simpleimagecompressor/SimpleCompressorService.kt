@@ -1,12 +1,18 @@
 package com.margelo.nitro.simpleimagecompressor
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
+import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.util.UUID
 import kotlin.math.min
 
@@ -49,6 +55,7 @@ object SimpleCompressorService {
   )
 
   fun compress(
+    context: Context,
     sourceUri: String,
     quality: Double,
     maxWidth: Int? = null,
@@ -58,11 +65,11 @@ object SimpleCompressorService {
   ): CompressedResult {
     //  Validation
     isValidParameters(quality, maxWidth, maxHeight)
-    val filePath = resolveFilePath(sourceUri)
+    val fileUri = resolveUri(sourceUri)
     //  Read source
-    val sourceOptions = decodeBounds(filePath)
+    val sourceOptions = decodeBounds(context, fileUri)
     var (height: Int, width: Int) = sourceOptions.run { outHeight to outWidth }
-    val actualRotationDeg = getRotationDegrees(filePath)
+    val actualRotationDeg = getRotationDegrees(context, fileUri)
 
     if (actualRotationDeg == 90 || actualRotationDeg == 270) {
       val temp = width
@@ -76,7 +83,7 @@ object SimpleCompressorService {
       maxWidth ?: width,
       maxHeight ?: height
     ) else 1
-    val source = decodeSampledBitmap(filePath, inSampleSize)
+    val source = decodeSampledBitmap(context, fileUri, inSampleSize)
     val (targetWidth: Int, targetHeight: Int) = calculateTargetDimension(
       width,
       height,
@@ -98,10 +105,10 @@ object SimpleCompressorService {
     val qualityInt = resolveQuality(quality, format)
     val compressFormat = resolveCompressFormat(format)
     val extension = resolveFileExtension(format)
-    val cacheDir = File(System.getProperty("java.io.tmpdir") ?: "/tmp")
+    val cacheDir = context.cacheDir
     val resultFile = compressToFile(transformed, compressFormat, extension, qualityInt, cacheDir)
     if (format == OutputCompressedFormat.JPEG || format == OutputCompressedFormat.JPG) {
-      copyExifMetadata(filePath, resultFile.absolutePath, !enablePhysicalRotation)
+      copyExifMetadata(context, fileUri, resultFile.absolutePath, !enablePhysicalRotation)
     }
 
     return CompressedResult(
@@ -118,6 +125,12 @@ object SimpleCompressorService {
 
     if ((maxWidth != null && maxWidth <= 0) || (maxHeight != null && maxHeight <= 0))
       throw ImageCompressorException.InvalidParameters()
+  }
+
+  private fun resolveUri(uriString: String): Uri {
+    val cleanUri =
+      if (!uriString.startsWith("file://") && !uriString.startsWith("content://")) "file://${uriString}" else uriString
+    return cleanUri.toUri()
   }
 
   private fun resolveFilePath(uri: String): String {
@@ -137,11 +150,14 @@ object SimpleCompressorService {
 
   //  Two-pass decoding
   // 1. Decode bounds
-  private fun decodeBounds(filePath: String): BitmapFactory.Options {
+  private fun decodeBounds(context: Context, fileUri: Uri): BitmapFactory.Options {
     val opts = BitmapFactory.Options().apply {
       inJustDecodeBounds = true
     }
-    BitmapFactory.decodeFile(filePath, opts)
+    val inputStream = openStream(context, fileUri)
+      ?: throw ImageCompressorException.CannotReadResource()
+
+    inputStream.use { BitmapFactory.decodeStream(it, null, opts) }
 
     if (opts.outWidth == -1 || opts.outHeight == -1) {
       throw ImageCompressorException.CannotReadDimensions()
@@ -168,27 +184,31 @@ object SimpleCompressorService {
   }
 
   // 2. Subsampling
-  private fun decodeSampledBitmap(filePath: String, inSampleSize: Int): Bitmap {
+  private fun decodeSampledBitmap(context: Context, fileUri: Uri, inSampleSize: Int): Bitmap {
     val opts = BitmapFactory.Options().apply {
       inJustDecodeBounds = false
       this.inSampleSize = inSampleSize
     }
 
-    return BitmapFactory.decodeFile(filePath, opts)
-      ?: throw ImageCompressorException.DecodingFailed()
+    return openStream(context, fileUri)?.use { inputStream ->
+      BitmapFactory.decodeStream(inputStream, null, opts)
+    } ?: throw ImageCompressorException.DecodingFailed()
   }
 
-  private fun getRotationDegrees(filePath: String): Int {
-    val exif = ExifInterface(filePath)
-    return when (exif.getAttributeInt(
-      ExifInterface.TAG_ORIENTATION,
-      ExifInterface.ORIENTATION_NORMAL
-    )) {
-      ExifInterface.ORIENTATION_ROTATE_90 -> 90
-      ExifInterface.ORIENTATION_ROTATE_180 -> 180
-      ExifInterface.ORIENTATION_ROTATE_270 -> 270
-      else -> 0
-    }
+  private fun getRotationDegrees(context: Context, fileUri: Uri): Int {
+
+    return openStream(context, fileUri)?.use { inputStream ->
+      val exif = ExifInterface(inputStream)
+      when (exif.getAttributeInt(
+        ExifInterface.TAG_ORIENTATION,
+        ExifInterface.ORIENTATION_NORMAL
+      )) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> 90
+        ExifInterface.ORIENTATION_ROTATE_180 -> 180
+        ExifInterface.ORIENTATION_ROTATE_270 -> 270
+        else -> 0
+      }
+    } ?: 0
   }
 
   /**
@@ -325,36 +345,54 @@ object SimpleCompressorService {
   }
 
   private fun copyExifMetadata(
-    originalPath: String,
+    context: Context,
+    originalUri: Uri,
     compressedPath: String,
     includeOrientation: Boolean
   ) {
     try {
-      val oldExif = ExifInterface(originalPath)
-      val newExif = ExifInterface(compressedPath)
 
-      var hasChanges = false
+      openStream(context, originalUri)?.use { inputStream ->
+        val oldExif = ExifInterface(inputStream)
+        val newExif = ExifInterface(compressedPath)
 
-      val tagsToCopy = if (includeOrientation) {
-        EXIF_TAGS_TO_COPY + ExifInterface.TAG_ORIENTATION
-      } else {
-        EXIF_TAGS_TO_COPY
-      }
-      for (tag in tagsToCopy) {
-        val value = oldExif.getAttribute(tag)
-        if (value != null) {
-          newExif.setAttribute(tag, value)
-          hasChanges = true
+        var hasChanges = false
+
+        val tagsToCopy = if (includeOrientation) {
+          EXIF_TAGS_TO_COPY + ExifInterface.TAG_ORIENTATION
+        } else {
+          EXIF_TAGS_TO_COPY
         }
-      }
-
-
-
-      if (hasChanges) {
-        newExif.saveAttributes()
+        for (tag in tagsToCopy) {
+          val value = oldExif.getAttribute(tag)
+          if (value != null) {
+            newExif.setAttribute(tag, value)
+            hasChanges = true
+          }
+        }
+        if (hasChanges) {
+          newExif.saveAttributes()
+        }
       }
     } catch (e: Exception) {
       e.printStackTrace()
+    }
+  }
+
+  private fun openStream(context: Context, uri: Uri): InputStream? {
+    try {
+      return if (uri.scheme == "context" || uri.scheme == "android.resuorce") {
+        context.contentResolver.openInputStream(uri)
+      } else {
+        val path = uri.path ?: uri.toString().removePrefix("file://")
+        FileInputStream(File(path))
+      }
+    } catch (_: FileNotFoundException) {
+      throw ImageCompressorException.FileNotFound()
+    } catch (_: SecurityException) {
+      throw ImageCompressorException.CannotReadResource()
+    } catch (_: Exception) {
+      throw ImageCompressorException.CannotReadResource()
     }
   }
 }
