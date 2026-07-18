@@ -74,7 +74,14 @@ pod 'libwebp', :modular_headers => true
 
 ## Usage
 
-```js
+```tsx
+import {
+  compressImage,
+  type CompressOptions,
+} from 'react-native-simple-image-compressor';
+
+//...
+
 const options: CompressOptions = {
   quality: 1.0,
   maxWidth: 1024,
@@ -83,6 +90,13 @@ const options: CompressOptions = {
 };
 
 const result = await compressImage(originalImageUri, options);
+
+//...
+
+<Image
+  source={{ uri: result.uri }}
+  style={styles.imagePreview}
+/>;
 ```
 
 ## Input formats
