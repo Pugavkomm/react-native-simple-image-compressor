@@ -129,23 +129,13 @@ object SimpleCompressorService {
 
   private fun resolveUri(uriString: String): Uri {
     val cleanUri =
-      if (!uriString.startsWith("file://") && !uriString.startsWith("content://")) "file://${uriString}" else uriString
+      if (
+        !uriString.startsWith("file://")
+        && !uriString.startsWith("content://")
+        && !uriString.startsWith("android.resource://")
+      ) "file://${uriString}"
+      else uriString
     return cleanUri.toUri()
-  }
-
-  private fun resolveFilePath(uri: String): String {
-    val cleanUri = uri.removePrefix("file://")
-
-    if (cleanUri.isEmpty()) throw ImageCompressorException.InvalidSourceUri()
-
-    val file = File(cleanUri)
-    if (!file.exists())
-      throw ImageCompressorException.FileNotFound()
-
-    if (!file.canRead())
-      throw ImageCompressorException.CannotReadResource()
-
-    return file.absolutePath
   }
 
   //  Two-pass decoding
@@ -379,9 +369,27 @@ object SimpleCompressorService {
     }
   }
 
+
+  /**
+   * Opens an [InputStream] for specified [Uri], routing the request based on the
+   * URI scheme
+   *
+   * Supported schemes:
+   * - `content://` and `android.resource://`: Routed safely through
+   * [android.content.ContentResolver]
+   * - `file://` or absolute file paths: Opened directly via [FileInputStream].
+   *
+   * @param context The app context
+   * @param uri The URI of the source image to read.
+   * @return An open [InputStream] to read the image data, or null.
+   * @throws ImageCompressorException.FileNotFound If the file does not exist at
+   * the specified path.
+   * @throws ImageCompressorException.CannotReadResource If the app lacks read
+   * permissions (SecurityException) or any other IO error occurs.
+   */
   private fun openStream(context: Context, uri: Uri): InputStream? {
     try {
-      return if (uri.scheme == "context" || uri.scheme == "android.resuorce") {
+      return if (uri.scheme == "content" || uri.scheme == "android.resource") {
         context.contentResolver.openInputStream(uri)
       } else {
         val path = uri.path ?: uri.toString().removePrefix("file://")
