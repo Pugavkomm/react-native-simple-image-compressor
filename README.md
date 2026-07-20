@@ -4,6 +4,7 @@ Simple image compressor
 
 
 <!-- TOC -->
+
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
   * [Abstract](#abstract)
   * [Features](#features)
@@ -25,6 +26,7 @@ Simple image compressor
   * [Contributing](#contributing)
   * [License](#license)
   * [TODO](#todo)
+
 <!-- TOC -->
 
 ## Abstract
@@ -194,6 +196,10 @@ server) to prevent your app's cache size from growing unnecessarily.
 - [Development workflow](CONTRIBUTING.md#development-workflow)
 - [Sending a pull request](CONTRIBUTING.md#sending-a-pull-request)
 - [Code of conduct](CODE_OF_CONDUCT.md)
+
+## Changelog
+
+[CHANGELOG.md](CHANGELOG.md)
 
 ## License
 
