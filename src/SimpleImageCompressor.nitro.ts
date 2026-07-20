@@ -28,12 +28,7 @@ export interface CompressOptions {
    */
   maxHeight?: number;
 
-  /** The target image format.
-   *
-   * @note If {@link enablePhysicalRotation} is `false`, this limit applies to the logical
-   * (viewable) height of the image.
-   *
-   */
+  /** The target image format */
   format: OutputCompressedFormat;
 
   /**
