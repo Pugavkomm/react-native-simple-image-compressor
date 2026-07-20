@@ -3,18 +3,6 @@ PODS:
   - hermes-engine (250829098.0.10):
     - hermes-engine/Pre-built (= 250829098.0.10)
   - hermes-engine/Pre-built (250829098.0.10)
-  - libwebp (1.5.0):
-    - libwebp/demux (= 1.5.0)
-    - libwebp/mux (= 1.5.0)
-    - libwebp/sharpyuv (= 1.5.0)
-    - libwebp/webp (= 1.5.0)
-  - libwebp/demux (1.5.0):
-    - libwebp/webp
-  - libwebp/mux (1.5.0):
-    - libwebp/demux
-  - libwebp/sharpyuv (1.5.0)
-  - libwebp/webp (1.5.0):
-    - libwebp/sharpyuv
   - NitroModules (0.36.1):
     - hermes-engine
     - RCTRequired
@@ -1804,7 +1792,7 @@ PODS:
     - React-utils (= 0.85.0)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.85.0)
-  - SimpleImageCompressor (0.1.0):
+  - SimpleImageCompressor (0.2.0-alpha.2):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -1826,9 +1814,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - SimpleImageCompressor/Core (= 0.1.0)
+    - SimpleImageCompressor/Core (= 0.2.0-alpha.2)
     - Yoga
-  - SimpleImageCompressor/Core (0.1.0):
+  - SimpleImageCompressor/Core (0.2.0-alpha.2):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -1852,37 +1840,11 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - SimpleImageCompressor/WebP (0.1.0):
-    - hermes-engine
-    - libwebp (~> 1.5.0)
-    - NitroModules
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - SimpleImageCompressor/Core
-    - Yoga
   - Yoga (0.0.0)
 
 DEPENDENCIES:
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
-  - libwebp
   - NitroModules (from `../node_modules/react-native-nitro-modules`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -1957,12 +1919,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - SimpleImageCompressor (from `../..`)
-  - SimpleImageCompressor/WebP (from `../..`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
-
-SPEC REPOS:
-  trunk:
-    - libwebp
 
 EXTERNAL SOURCES:
   FBLazyVector:
@@ -2122,7 +2079,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   FBLazyVector: c00c20551d40126351a6783c47ce75f5b374851b
   hermes-engine: 05430a0561a36798593695db4a5e6dd41a8ee6bd
-  libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   NitroModules: b4174dd303728e16ad1afb79f64c1a5c69a3b373
   RCTDeprecation: 3bb167081b134461cfeb875ff7ae1945f8635257
   RCTRequired: 74839f55d5058a133a0bc4569b0afec750957f64
@@ -2195,7 +2151,7 @@ SPEC CHECKSUMS:
   ReactCodegen: b3184a229afd01e7f8058dd81b805b843caa2bf9
   ReactCommon: fe2a3af8975e63efa60f95fca8c34dc85deee360
   ReactNativeDependencies: 1a9277ace6124a2461d74462f910180175bd37aa
-  SimpleImageCompressor: c0b3c4d09006a946ae662bb3ab0d77a6cfb2f640
+  SimpleImageCompressor: 1bc362a1c22ef2c0f1b29c6561b1879e0c01e5f6
   Yoga: e83c3121d079541e69f3c5c623faaaf933fb5812
 
 PODFILE CHECKSUM: 30619dfff82428b21c5ba374b54377f0747ecfec

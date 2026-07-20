@@ -47,7 +47,7 @@ enum ImageCompressorError: Int, LocalizedError, CustomNSError {
       return "Source URL must be a local file path (file://)"
     case .fileDoesNotExist: return "File does not exist at the specified path"
     case .downsamplingFailed: return "Downsampling failed"
-    case .invalidTargetParameter: return "Invalide target parameters"
+    case .invalidTargetParameter: return "Invalid target parameters"
     }
   }
 }
