@@ -1,4 +1,5 @@
 export { compressImage } from './compressImage';
+export { ImageCompressorError } from './imageCompressorError';
 
 export type {
   CompressOptions,
