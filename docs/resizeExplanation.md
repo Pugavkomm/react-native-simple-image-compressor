@@ -20,7 +20,7 @@ and explains the outcome when physical rotation is enabled (`enablePhysicalRotat
 ## Understanding Physical vs. Logical Dimensions
 
 Before diving into how `maxWidth`, `maxHeight` and `enablePhysicalRotation` work, it's important to understand the
-difference between physical and logical image dimensions due to EXZF orientation.
+difference between physical and logical image dimensions due to EXIF orientation.
 
 **Physical Dimensions**: How the pixels are actually stored on the disk. For example, phone camera sensors are usually
 landscape, so a portrait photo might physically be stored sideways as `4000(W)x2000(H)`.
@@ -53,7 +53,7 @@ If we enable physical rotation (`enablePhysicalRotation=true`), then when scalin
 we will get an image of `1000(W)x2000(H)`. This happens because during compression, we create a new image that
 physically applies the rotation. This means the resulting image file will literally have 1000 pixels in width and 2000
 pixels in height. Consequently, the rotation information is removed from the EXIF metadata to prevent double-rotation.
-This approach is higly convenient when preparing image data to be sent to a server.
+This approach is highly convenient when preparing image data to be sent to a server.
 
 If physical rotation is disabled (`enablePhysicalRotation=false`), the upong scaling down by half, the resulting
 physical image file will have the dimensions `2000(W)x1000(H)`. The EXIF rotation metadata is preserved, so viewers will

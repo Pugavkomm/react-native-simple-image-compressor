@@ -154,7 +154,7 @@ Currently, only one compression method is available: `compressImage`. It accepts
 
 The method `compressImage` returns a `CompressResult` object. See all available properties below:
 
-| Property name | Type                                                | Required | Descripton                                                                 |
+| Property name | Type                                                | Required | Description                                                                |
 |---------------|-----------------------------------------------------|----------|----------------------------------------------------------------------------|
 | uri           | `string`                                            | YES      | The local file URI of the compressed image (e.g., `file:///path/to/image`) |
 | width         | `number`                                            | YES      | The width of the compressed image in pixels                                |
