@@ -148,6 +148,8 @@ class SimpleCompressorServiceTest {
 
     assertEquals(4000.0, result.width)
     assertEquals(3000.0, result.height)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
 
     val originalSize = File(testFileUri.removePrefix("file://")).length()
     val compressedSize = resultFile.length()
@@ -174,6 +176,8 @@ class SimpleCompressorServiceTest {
 
     assertEquals(1000.0, result.width)
     assertEquals(750.0, result.height)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
     File(testFile.removePrefix("file://")).delete()
   }
 
@@ -194,6 +198,8 @@ class SimpleCompressorServiceTest {
 
     assertEquals(2000.0, result.width)
     assertEquals(1500.0, result.height)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
     File(testFile.removePrefix("file://")).delete()
   }
 
@@ -212,6 +218,8 @@ class SimpleCompressorServiceTest {
     val resultOptions = readImageFile(result.uri).second
     assertEquals(1000, resultOptions.outWidth)
     assertEquals(750, resultOptions.outHeight)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
     File(testFile.removePrefix("file://")).delete()
   }
 
@@ -220,35 +228,40 @@ class SimpleCompressorServiceTest {
   fun `compress returns correct file extensions and mime types`() {
     val testFile = createTestImageFile(100, 100)
 
-    val pngResult = SimpleCompressorService.compress(
-      context = context,
-      sourceUri = testFile,
-      quality = 1.0,
-      format = OutputCompressedFormat.PNG
-    )
+    val formats = OutputCompressedFormat.entries
+    for (format in formats) {
+      val result = SimpleCompressorService.compress(
+        context = context,
+        sourceUri = testFile,
+        quality = 1.0,
+        format = format
+      )
 
-    assert(pngResult.uri.endsWith(".png")) { "Expected URI to end with .png" }
+      val expectedExtension = when (format) {
 
-    val (pngFile, pngOptions) = readImageFile(pngResult.uri)
-    assertEquals("image/png", pngOptions.outMimeType)
+        OutputCompressedFormat.JPEG, OutputCompressedFormat.JPG -> ".jpg"
+        OutputCompressedFormat.PNG -> ".png"
+        OutputCompressedFormat.WEBP -> ".webp"
+        OutputCompressedFormat.WEBP_LOSSLESS -> ".webp"
+      }
+      assert(result.uri.endsWith(expectedExtension)) { "Expected URI to end with $expectedExtension" }
 
+      val (resultFile, resultOptions) = readImageFile(result.uri)
+      val expectedMime = when (format) {
+        OutputCompressedFormat.JPEG, OutputCompressedFormat.JPG -> "image/jpeg"
+        OutputCompressedFormat.PNG -> "image/png"
+        OutputCompressedFormat.WEBP, OutputCompressedFormat.WEBP_LOSSLESS -> "image/webp"
+      }
 
-    val webpResult = SimpleCompressorService.compress(
-      context = context,
-      sourceUri = testFile,
-      quality = 1.0,
-      format = OutputCompressedFormat.WEBP
-    )
+      assertEquals(expectedMime, resultOptions.outMimeType)
 
-    assert(webpResult.uri.endsWith(".webp")) { "Expected URI to end with .webp" }
+      assertEquals(format, result.format)
+      assert(result.fileSize > 0) { "File size should be greater than 0" }
 
-    val (webpFile, webpOptions) = readImageFile(webpResult.uri)
-    assertEquals("image/webp", webpOptions.outMimeType)
-
+      resultFile.delete()
+    }
 
     File(testFile.removePrefix("file://")).delete()
-    pngFile.delete()
-    webpFile.delete()
   }
 
   @Test
@@ -275,6 +288,8 @@ class SimpleCompressorServiceTest {
     assertEquals("TestCameraBrand", compressedExif.getAttribute(ExifInterface.TAG_MAKE))
     assertEquals("TestCameraModel", compressedExif.getAttribute(ExifInterface.TAG_MODEL))
     assertEquals("2023:10:25 12:00:00", compressedExif.getAttribute(ExifInterface.TAG_DATETIME))
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
 
     File(testFile.removePrefix("file://")).delete()
     File(compressedFilePath).delete()
@@ -309,6 +324,8 @@ class SimpleCompressorServiceTest {
 
     assertEquals(500.0, result.width)
     assertEquals(1000.0, result.height)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
 
     // Check EEXIF
     val compressedExif = ExifInterface(resultFile.absolutePath)
@@ -353,6 +370,8 @@ class SimpleCompressorServiceTest {
 
     assertEquals(1000.0, result.width)
     assertEquals(500.0, result.height)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
 
     val compressedExif = ExifInterface(resultFile.absolutePath)
     val finalOrientation = compressedExif.getAttributeInt(
@@ -440,6 +459,8 @@ class SimpleCompressorServiceTest {
 
     assert(result.width > 0) { "Compression through ContentResolver should succeed" }
     assert(result.height > 0)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
     tmpFile.delete()
   }
 
@@ -459,6 +480,8 @@ class SimpleCompressorServiceTest {
     )
 
     assert(result.width > 0)
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
     tmpFile.delete()
   }
 
@@ -470,7 +493,8 @@ class SimpleCompressorServiceTest {
     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
     val jpegBytes = baos.toByteArray()
 
-    val resourceUri = Uri.parse("android.resource://com.margelo.nitro.simpleimagecompressor/drawable/test_img")
+    val resourceUri =
+      Uri.parse("android.resource://com.margelo.nitro.simpleimagecompressor/drawable/test_img")
 
     // ShadowContentResolver only stores one InputStream instance per URI.
     // We create a stream that resets itself when closed, so it can be reused
@@ -493,6 +517,8 @@ class SimpleCompressorServiceTest {
     )
 
     assert(result.width > 0) { "Compression through ContentResolver for android.resource should succeed" }
+    assertEquals(OutputCompressedFormat.JPEG, result.format)
+    assert(result.fileSize > 0)
   }
 
 }

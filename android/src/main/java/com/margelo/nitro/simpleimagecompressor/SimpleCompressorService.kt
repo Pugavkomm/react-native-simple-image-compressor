@@ -114,7 +114,9 @@ object SimpleCompressorService {
     return CompressedResult(
       uri = "file://${resultFile.absolutePath}",
       width = physicalTargetWidth.toDouble(),
-      height = physicalTargetHeight.toDouble()
+      height = physicalTargetHeight.toDouble(),
+      format = format,
+      fileSize = getFileSizeInDouble(resultFile)
     )
   }
 
@@ -308,6 +310,10 @@ object SimpleCompressorService {
       OutputCompressedFormat.WEBP, OutputCompressedFormat.WEBP_LOSSLESS -> ".webp"
       OutputCompressedFormat.JPG, OutputCompressedFormat.JPEG -> ".jpg"
     }
+  }
+
+  private fun getFileSizeInDouble(file: File): Double {
+    return file.length().toDouble()
   }
 
   private fun compressToFile(

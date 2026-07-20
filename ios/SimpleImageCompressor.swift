@@ -5,7 +5,7 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
   var memorySize: Int { return 0 }
 
   public func compressImage(uri: String, options: CompressOptions) throws
-  -> Promise<CompressedResult>
+    -> Promise<CompressedResult>
   {
     return Promise.async {
       let cleanUri = uri.replacingOccurrences(of: "file://", with: "")
@@ -51,10 +51,25 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
         imageFormat: imageFormat,
         enablePhysicalRotation: options.enablePhysicalRotation ?? false
       )
+
+      let outputImageFormat: OutputCompressedFormat
+      switch compressedResult.format {
+      case .png:
+        outputImageFormat = .png
+      case .jpg:
+        outputImageFormat = .jpg
+      case .webp:
+        outputImageFormat = .webp
+      case .webpLossless:
+        outputImageFormat = .webpLossless
+      }
+
       return CompressedResult(
         uri: compressedResult.uri.absoluteString,
         width: Double(compressedResult.width),
-        height: Double(compressedResult.height)
+        height: Double(compressedResult.height),
+        format: outputImageFormat,
+        fileSize: Double(compressedResult.fileSize)
       )
     }
   }
