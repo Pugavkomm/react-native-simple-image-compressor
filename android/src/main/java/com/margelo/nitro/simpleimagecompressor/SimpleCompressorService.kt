@@ -111,6 +111,9 @@ object SimpleCompressorService {
       copyExifMetadata(context, fileUri, resultFile.absolutePath, !enablePhysicalRotation)
     }
 
+    // Out of memory fix
+    transformed.recycle()
+
     return CompressedResult(
       uri = "file://${resultFile.absolutePath}",
       width = physicalTargetWidth.toDouble(),
