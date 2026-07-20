@@ -1,7 +1,7 @@
 import Foundation
 
 // R + G + B + A
-private let bytestPerPixel = 4
+private let bytesPerPixel = 4
 
 #if canImport(libwebp)
   import libwebp
@@ -14,9 +14,9 @@ private let bytestPerPixel = 4
   /// Encodes a CoreGraphics image into WebP format using `libwebp`.
   ///
   /// This function extracts raw`RGBA` pixel data from the provided `CGImage` by drawing it into a
-  /// temprorary `CGContext`.
+  /// temporary `CGContext`.
   ///
-  /// If the `quality` is exactly `1.0`, it perfroms lossless compression; otherwise, it performs lossy
+  /// If the `quality` is exactly `1.0`, it performs lossless compression; otherwise, it performs lossy
   /// compression.
   ///
   /// - Parameters:
@@ -25,11 +25,13 @@ private let bytestPerPixel = 4
   ///    preservation or `lossy(quality:)` for a smaller file size (where quality ranges from `0.0` to
   ///    `1.0`).
   /// - Throws: An `NSError` if the `libwebp` encoder fails to process the image.
+  /// - Throws: An `NSError` if failed to create `CGContext`.
   /// - Returns: A `Data` object if the `libwebp` encoder fails to process the image.
-  func encodeToWebp(cgImage: CGImage, mode: WebPCompressionMode) throws -> Data {
+  func encodeToWebp(cgImage: CGImage, mode: WebPCompressionMode) throws -> Data
+  {
     let width = cgImage.width
     let height = cgImage.height
-    let bytesPerRow = bytestPerPixel * width
+    let bytesPerRow = bytesPerPixel * width
     let totalBytes = bytesPerRow * height
 
     let pixelBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: totalBytes)
@@ -40,23 +42,31 @@ private let bytestPerPixel = 4
       pixelBuffer.deallocate()
     }
 
-    let ctx = CGContext(
-      data: pixelBuffer,
-      width: width,
-      height: height,
-      bitsPerComponent: 8,
-      bytesPerRow: bytesPerRow,
-      space: CGColorSpaceCreateDeviceRGB(),
-      bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue
-        | CGImageAlphaInfo.premultipliedLast.rawValue
-    )
-    ctx?
-      .draw(
-        cgImage,
-        in: CGRect(x: 0, y: 0, width: width, height: height),
+    guard
+      let ctx = CGContext(
+        data: pixelBuffer,
+        width: width,
+        height: height,
+        bitsPerComponent: 8,
+        bytesPerRow: bytesPerRow,
+        space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue
+          | CGImageAlphaInfo.premultipliedLast.rawValue
       )
+    else {
+      throw NSError(
+        domain: "WebPError",
+        code: 2,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to create CGContext."]
+      )
+    }
 
-    var outpuBuffer: UnsafeMutablePointer<UInt8>? = nil
+    ctx.draw(
+      cgImage,
+      in: CGRect(x: 0, y: 0, width: width, height: height),
+    )
+
+    var outputBuffer: UnsafeMutablePointer<UInt8>? = nil
     var outputSize = 0
 
     switch mode {
@@ -66,7 +76,7 @@ private let bytestPerPixel = 4
         Int32(width),
         Int32(height),
         Int32(bytesPerRow),
-        &outpuBuffer
+        &outputBuffer
       )
     case .lossy(let quality):
       outputSize = WebPEncodeRGBA(
@@ -75,12 +85,16 @@ private let bytestPerPixel = 4
         Int32(height),
         Int32(bytesPerRow),
         Float(quality * 100.0),
-        &outpuBuffer
+        &outputBuffer
       )
     }
 
-    guard outputSize > 0, let finalBuffer = outpuBuffer else {
-      throw NSError(domain: "WebPError", code: 1, userInfo: nil)
+    guard outputSize > 0, let finalBuffer = outputBuffer else {
+      throw NSError(
+        domain: "WebPError",
+        code: 1,
+        userInfo: [NSLocalizedDescriptionKey: "The libwebp encoder failed to process the image."]
+      )
     }
 
     defer {
