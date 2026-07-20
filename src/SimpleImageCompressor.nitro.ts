@@ -4,9 +4,16 @@ export type OutputCompressedFormat =
   'jpg' | 'png' | 'jpeg' | 'webp' | 'webp-lossless';
 
 export interface CompressedResult {
+  /** The file uri of the compressed image */
   uri: string;
+  /** The image's width */
   width: number;
+  /** The image's height */
   height: number;
+  /** The final compressed image format */
+  format: OutputCompressedFormat;
+  /** The compressed image's file size in bytes */
+  fileSize: number;
 }
 
 export interface CompressOptions {

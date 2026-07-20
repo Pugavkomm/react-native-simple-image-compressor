@@ -2,17 +2,19 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-public struct CompressResultWithMetadata {
-  var uri: URL
-  var height: Int
-  var width: Int
-}
-
 enum ImageFormat {
   case jpg
   case png
   case webp
   case webpLossless
+}
+
+public struct CompressResultWithMetadata {
+  var uri: URL
+  var height: Int
+  var width: Int
+  var fileSize: Int
+  var format: ImageFormat
 }
 
 enum ImageCompressorError: Int, LocalizedError, CustomNSError {
@@ -83,6 +85,11 @@ struct ImageCompressorService {
     enablePhysicalRotation: Bool = false
   ) throws -> CompressResultWithMetadata {
 
+    // Metadata for the final output.
+    // 'outputFormat' may change if WebP is not supported and we fallback to JPEG.
+    var fileSize = 0
+    var outputFormat = imageFormat
+
     // Validation
     try isValidParameters(
       quality: quality,
@@ -131,6 +138,7 @@ struct ImageCompressorService {
           ? .lossless
           : .lossy(quality: quality)
         let webPData = try encodeToWebp(cgImage: downSampleImage, mode: mode)
+        fileSize = webPData.count
         try webPData.write(to: destinationUrl)
       #else
         print(
@@ -143,6 +151,8 @@ struct ImageCompressorService {
           quality: quality,
           metadata: originalProps,
         )
+        outputFormat = .jpg
+        fileSize = try getFileSize(fileUrl: destinationUrl)
       #endif
     default:
       try writeWithImageIO(
@@ -152,9 +162,30 @@ struct ImageCompressorService {
         quality: quality,
         metadata: originalProps,
       )
+
+      fileSize = try getFileSize(fileUrl: destinationUrl)
     }
 
-    return CompressResultWithMetadata(uri: destinationUrl, height: downSampleImage.height, width: downSampleImage.width)
+    return CompressResultWithMetadata(
+      uri: destinationUrl,
+      height: downSampleImage.height,
+      width: downSampleImage.width,
+      fileSize: fileSize,
+      format: outputFormat
+    )
+  }
+
+  private static func getFileSize(fileUrl: URL) throws -> Int {
+    guard
+      let resourceValues = try? fileUrl.resourceValues(forKeys: [
+        .fileSizeKey
+      ]),
+      let size = resourceValues.fileSize
+    else {
+      throw ImageCompressorError.writeFailed
+    }
+
+    return size
   }
 
   private static func writeWithImageIO(

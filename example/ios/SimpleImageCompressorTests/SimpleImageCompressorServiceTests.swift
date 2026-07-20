@@ -188,8 +188,7 @@ final class SimpleImageCompressorTests: XCTestCase {
       maxHeight: nil,
       imageFormat: .jpg
     )
-    
-    
+
     let resultUrl = result.uri
 
     defer { try? FileManager.default.removeItem(at: resultUrl) }
@@ -217,6 +216,8 @@ final class SimpleImageCompressorTests: XCTestCase {
       )[.size] as! UInt64
 
     XCTAssertLessThan(compressedSize, originalSize)
+    XCTAssertGreaterThan(result.fileSize, 0)
+    XCTAssertEqual(result.format, .jpg)
 
   }
 
@@ -232,7 +233,7 @@ final class SimpleImageCompressorTests: XCTestCase {
       maxHeight: nil,
       imageFormat: .png
     )
-    
+
     let resultUrl = result.uri
 
     defer { try? FileManager.default.removeItem(at: resultUrl) }
@@ -246,6 +247,40 @@ final class SimpleImageCompressorTests: XCTestCase {
       resultUrl.lastPathComponent.hasSuffix(".png"),
       "File extension should be .png"
     )
+    XCTAssertGreaterThan(result.fileSize, 0)
+    XCTAssertEqual(result.format, .png)
+  }
+
+  func testCompress_webp_format() throws {
+    let sourceUrl = createTestImage(width: 2000, height: 2000)
+
+    defer { try? FileManager.default.removeItem(at: sourceUrl) }
+    let result = try ImageCompressorService.compress(
+      sourceUrl: sourceUrl,
+      quality: 0.5,
+      maxWidth: 1000,
+      maxHeight: nil,
+      imageFormat: .webp
+    )
+
+    let resultUrl = result.uri
+
+    defer { try? FileManager.default.removeItem(at: resultUrl) }
+
+    XCTAssertTrue(
+      FileManager.default.fileExists(atPath: resultUrl.path),
+      "Compressed file should exist"
+    )
+
+    XCTAssertGreaterThan(result.fileSize, 0)
+
+    #if canImport(libwebp)
+      XCTAssertEqual(result.format, .webp)
+      XCTAssertTrue(resultUrl.lastPathComponent.hasSuffix(".webp"))
+    #else
+      XCTAssertEqual(result.format, .jpg)
+      XCTAssertTrue(resultUrl.lastPathComponent.hasSuffix(".jpg"))
+    #endif
   }
 
   // MARK: - compress (negative)
@@ -395,9 +430,8 @@ final class SimpleImageCompressorTests: XCTestCase {
       imageFormat: .jpg,
       enablePhysicalRotation: true
     )
-    
+
     let resultUrl = result.uri
-    
 
     let source = CGImageSourceCreateWithURL(resultUrl as CFURL, nil)!
     let props =
@@ -408,13 +442,15 @@ final class SimpleImageCompressorTests: XCTestCase {
 
     XCTAssertEqual(resWidth, 500)
     XCTAssertEqual(resHeight, 1000)
-    
+
     XCTAssertEqual(result.width, 500)
     XCTAssertEqual(result.height, 1000)
 
     let finalOrientation = props[kCGImagePropertyOrientation] as? Int ?? 1
 
     XCTAssertEqual(finalOrientation, 1)
+    XCTAssertGreaterThan(result.fileSize, 0)
+    XCTAssertEqual(result.format, .jpg)
   }
 
   func testCompress_doesNotApplyExifOrientation_andSwapDimensions() throws {
@@ -428,10 +464,9 @@ final class SimpleImageCompressorTests: XCTestCase {
       imageFormat: .jpg,
       enablePhysicalRotation: false
     )
-    
+
     let resultUrl = result.uri
-    
-    
+
     let source = CGImageSourceCreateWithURL(resultUrl as CFURL, nil)!
     let props =
       CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as! [CFString: Any]
@@ -441,13 +476,15 @@ final class SimpleImageCompressorTests: XCTestCase {
 
     XCTAssertEqual(resWidth, 1000)
     XCTAssertEqual(resHeight, 500)
-    
+
     XCTAssertEqual(result.width, 1000)
     XCTAssertEqual(result.height, 500)
 
     let finalOrientation = props[kCGImagePropertyOrientation] as? Int ?? 1
 
     XCTAssertEqual(finalOrientation, 6)
+    XCTAssertGreaterThan(result.fileSize, 0)
+    XCTAssertEqual(result.format, .jpg)
   }
 
   func testCompress_preservesExifMetadata() throws {
@@ -471,7 +508,7 @@ final class SimpleImageCompressorTests: XCTestCase {
       maxHeight: 500,
       imageFormat: .jpg
     )
-    
+
     let resultUrl = result.uri
 
     let source = CGImageSourceCreateWithURL(resultUrl as CFURL, nil)!
@@ -486,6 +523,8 @@ final class SimpleImageCompressorTests: XCTestCase {
       expectedCamera,
       "EXIF Camera Model should be preserved after compression"
     )
+    XCTAssertGreaterThan(result.fileSize, 0)
+    XCTAssertEqual(result.format, .jpg)
   }
 
 }

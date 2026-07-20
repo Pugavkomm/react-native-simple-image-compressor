@@ -135,22 +135,28 @@ in [CompressOptions](#compressoptions)
 Currently, only one compression method is available: `compressImage`. It accepts a `uri` and `options` of type
 `CompressOptions` (see all available options below).
 
-| Option name            | Type      | Required | Description                                                                                                                                                                                                                          |
-|------------------------|-----------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| quality                | `number`  | YES      | Compression quality. Valid values range from `0.0` (lowest quality and minimal size) to `1.0` (highest quality and maximum size). For more details on supported formats, see [OutputCompressedFormat](#outputcompressedformat)       |
-| maxWidth               | `number`  | NO       | The maximum width of the converted image. Note: This boundary limit applies to the logical (viewable) width of the image, automatically taking EXIF orientation into account (see [Resize explanation](docs/resizeExplanation.md)).  |
-| maxHeight              | `number`  | NO       | The maximum height of the converted image. Note: This boundary limit applies to the logical (viewable) width of the image, automatically taking EXIF orientation into account (see [Resize explanation](docs/resizeExplanation.md)). |
-| enablePhysicalRotation | `boolean` | NO       | if true, physically rotates the image pixels based on EXIF orientation. Read [this detailed guide with visual examples to understand hot physical vs logical dimensions work under the hood](docs/resizeExplanation)                 |
+| Option name            | Type                                                | Required | Description                                                                                                                                                                                                                          |
+|------------------------|-----------------------------------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| quality                | `number`                                            | YES      | Compression quality. Valid values range from `0.0` (lowest quality and minimal size) to `1.0` (highest quality and maximum size). For more details on supported formats, see [OutputCompressedFormat](#outputcompressedformat)       |
+| maxWidth               | `number`                                            | NO       | The maximum width of the converted image. Note: This boundary limit applies to the logical (viewable) width of the image, automatically taking EXIF orientation into account (see [Resize explanation](docs/resizeExplanation.md)).  |
+| maxHeight              | `number`                                            | NO       | The maximum height of the converted image. Note: This boundary limit applies to the logical (viewable) width of the image, automatically taking EXIF orientation into account (see [Resize explanation](docs/resizeExplanation.md)). |
+| enablePhysicalRotation | `boolean`                                           | NO       | if true, physically rotates the image pixels based on EXIF orientation. Read [this detailed guide with visual examples to understand hot physical vs logical dimensions work under the hood](docs/resizeExplanation)                 |
+| format                 | [`OutputCompressedFormat`](#outputcompressedformat) | YES      | The target image format                                                                                                                                                                                                              |
 
 ## CompressedResult
 
 The method `compressImage` returns a `CompressResult` object. See all available properties below:
 
-| Property name | Type     | Required | Descripton                                                                 |
-|---------------|----------|----------|----------------------------------------------------------------------------|
-| uri           | `string` | YES      | The local file URI of the compressed image (e.g., `file:///path/to/image`) |
-| width         | `number` | YES      | The width of the compressed image in pixels                                |
-| height        | `number` | YES      | The height of the compressed image in pixels                               |
+| Property name | Type                                                | Required | Descripton                                                                 |
+|---------------|-----------------------------------------------------|----------|----------------------------------------------------------------------------|
+| uri           | `string`                                            | YES      | The local file URI of the compressed image (e.g., `file:///path/to/image`) |
+| width         | `number`                                            | YES      | The width of the compressed image in pixels                                |
+| height        | `number`                                            | YES      | The height of the compressed image in pixels                               |
+| fileSize      | `number`                                            | YES      | The compressed image's file size in bytes                                  |
+| format        | [`OutputCompressedFormat`](#outputcompressedformat) | YES      | The final compressed image format                                          |
+
+> **Important note**: Due to iOS compatibility fallbacks, the returned `format` property may be `jpg` even when `webp`
+> or `webp-lossless` is requiest. See details in [Enable support webp on iOS](#enable-support-webp-on-ios)
 
 ## EXIF metadata
 
