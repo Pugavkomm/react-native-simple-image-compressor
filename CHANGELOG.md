@@ -1,3 +1,17 @@
+# Changelog
+
+# [0.2.0-beta.0](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-alpha.4...v0.2.0-beta.0) (2026-07-20)
+
+
+### Bug Fixes
+
+* **android:** add recycle after compressing to prevent memory leak ([#21](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/21)) ([5e7cc83](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/5e7cc83c466d14cb3adac2354181787d66f67433))
+
+
+### Features
+
+* add structured error handling for native exceptions ([#32](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/32)) ([ac1fdc1](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/ac1fdc14d2f168cf7a3a4204e4b6af9125171c09))
+* **android:** add proguard consumer rules ([#23](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/23)) ([29d85b9](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/29d85b9f63cad6e117055813baac0a8c6bb851b5))
 
 # [0.2.0-alpha.4](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-alpha.3...v0.2.0-alpha.4) (2026-07-20)
 
