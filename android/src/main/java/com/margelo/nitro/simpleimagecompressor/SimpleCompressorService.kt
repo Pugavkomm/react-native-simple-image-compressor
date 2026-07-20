@@ -149,10 +149,9 @@ object SimpleCompressorService {
     val opts = BitmapFactory.Options().apply {
       inJustDecodeBounds = true
     }
-    val inputStream = openStream(context, fileUri)
-      ?: throw ImageCompressorException.CannotReadResource()
-
-    inputStream.use { BitmapFactory.decodeStream(it, null, opts) }
+    openStream(context, fileUri)?.use { inputStream ->
+      BitmapFactory.decodeStream(inputStream, null, opts)
+    } ?: throw ImageCompressorException.CannotReadResource()
 
     if (opts.outWidth == -1 || opts.outHeight == -1) {
       throw ImageCompressorException.CannotReadDimensions()
