@@ -5,14 +5,16 @@ import type {
   SimpleImageCompressor,
 } from './SimpleImageCompressor.nitro';
 
-const SimpleImageCompressorHybridObject =
-  NitroModules.createHybridObject<SimpleImageCompressor>(
-    'SimpleImageCompressor'
-  );
+let hybridObject: SimpleImageCompressor | null = null;
 
 export async function compressImage(
   uri: string,
   options: CompressOptions
 ): Promise<CompressedResult> {
-  return await SimpleImageCompressorHybridObject.compressImage(uri, options);
+  if (!hybridObject) {
+    hybridObject = NitroModules.createHybridObject<SimpleImageCompressor>(
+      'SimpleImageCompressor'
+    );
+  }
+  return await hybridObject.compressImage(uri, options);
 }
