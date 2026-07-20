@@ -173,13 +173,17 @@
       "publish": false
     },
     "github": {
-      "release": true
+      "release": true,
+      "autoGenerate": true,
+      "releaseNotes": null
     },
     "plugins": {
       "@release-it/conventional-changelog": {
         "preset": {
           "name": "angular"
-        }
+        },
+        "infile": "CHANGELOG.md",
+        "ignoreRecommendedBump": true
       }
     }
   },
