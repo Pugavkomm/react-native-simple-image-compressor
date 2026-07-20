@@ -12,6 +12,7 @@
 Simple image compressor
 
 <!-- TOC -->
+
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
   * [Abstract](#abstract)
   * [Features](#features)
@@ -34,6 +35,7 @@ Simple image compressor
   * [Changelog](#changelog)
   * [License](#license)
   * [TODO](#todo)
+
 <!-- TOC -->
 
 ## Abstract
@@ -59,6 +61,8 @@ uploading them to a server.
   platforms (utilizing native APIs where possible and `libwebp` as a fallback on iOS).
 - **Aspect ratio preservation**: Intelligently scales images to fit within your desired `maxWidth` and `maxHeight`
   bounds without ever stretching or distorting the original aspect ratio.
+- **Production Ready & Tested**: Backed by comprehensive native unit tests (Swift/Kotlin) to ensure maximum stability
+  and prevent regressions across edge cases.
 
 ## Installation
 
