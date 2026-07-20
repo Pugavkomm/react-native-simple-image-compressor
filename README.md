@@ -7,7 +7,7 @@
 ![React Native](https://img.shields.io/badge/React%20Native-%E2%89%A50.70-61DAFB.svg?logo=react)
 ![Nitro Modules](https://img.shields.io/badge/Architecture-Nitro%20Modules-FF4B4B.svg)
 [![npm downloads](https://img.shields.io/npm/dm/react-native-simple-image-compressor.svg)](https://www.npmjs.com/package/react-native-simple-image-compressor)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Pugavkomm/react-native-simple-image-compressor/blob/dev/CONTRIBUTING.md)
 
 Simple image compressor
 
