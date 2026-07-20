@@ -19,6 +19,8 @@ Simple image compressor
     * [Android](#android)
     * [iOS](#ios)
   * [Codec `libwebp`](#codec-libwebp)
+  * [Best Practice](#best-practice)
+    * [Storage management.](#storage-management)
   * [Additional information](#additional-information)
   * [Contributing](#contributing)
   * [License](#license)
@@ -171,6 +173,17 @@ This library aims to provide consistent functionality across Android and iOS. Wh
 encoding via the `Bitmap` class, native WebP encoding on iOS is still unavailable. To bridge this gap and provide full
 WebP
 support on iOS, this library integrates the `libwebp` codec.
+
+## Best Practice
+
+### Storage management.
+
+The compressed images are saved in the device's temporary cache directory. While the OS may
+eventually clear these files when storage is low, it's highly recommended that you manually delete the file (e.g., using
+`react-native-fs` or `expo-file-system`) once you are done with it (e.g., after successfully uploading it to some
+server) to prevent your app's cache size from growing unnecessarily.
+
+> In fact, there are plans to work on this issue in the future.
 
 ## Additional information
 
