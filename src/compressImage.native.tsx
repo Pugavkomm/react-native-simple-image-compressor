@@ -4,6 +4,7 @@ import type {
   CompressOptions,
   SimpleImageCompressor,
 } from './SimpleImageCompressor.nitro';
+import { ImageCompressorError } from './imageCompressorError';
 
 let hybridObject: SimpleImageCompressor | null = null;
 
@@ -16,5 +17,16 @@ export async function compressImage(
       'SimpleImageCompressor'
     );
   }
-  return await hybridObject.compressImage(uri, options);
+
+  try {
+    return await hybridObject.compressImage(uri, options);
+  } catch (error) {
+    if (error instanceof Error) {
+      const match = error.message.match(/\[(\d+)\]\s*(.*)/);
+      if (match && match[1] && match[2]) {
+        throw new ImageCompressorError(match[1], match[2]);
+      }
+    }
+    throw error;
+  }
 }
