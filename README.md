@@ -1,10 +1,17 @@
 # react-native-simple-image-compressor
 
+[![npm](https://img.shields.io/npm/v/react-native-simple-image-compressor)](https://www.npmjs.com/package/react-native-simple-image-compressor)
+[![CI](https://github.com/Pugavkomm/react-native-simple-image-compressor/actions/workflows/ci.yml/badge.svg)](https://github.com/Pugavkomm/react-native-simple-image-compressor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-lightgrey.svg)]()
+![React Native](https://img.shields.io/badge/React%20Native-%E2%89%A50.70-61DAFB.svg?logo=react)
+![Nitro Modules](https://img.shields.io/badge/Architecture-Nitro%20Modules-FF4B4B.svg)
+[![npm downloads](https://img.shields.io/npm/dm/react-native-simple-image-compressor.svg)](https://www.npmjs.com/package/react-native-simple-image-compressor)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
+
 Simple image compressor
 
-
 <!-- TOC -->
-
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
   * [Abstract](#abstract)
   * [Features](#features)
@@ -24,9 +31,9 @@ Simple image compressor
     * [Storage management.](#storage-management)
   * [Additional information](#additional-information)
   * [Contributing](#contributing)
+  * [Changelog](#changelog)
   * [License](#license)
   * [TODO](#todo)
-
 <!-- TOC -->
 
 ## Abstract
