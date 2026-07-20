@@ -43,6 +43,7 @@ android {
 
   defaultConfig {
     minSdkVersion getExtOrDefault("minSdkVersion")
+    consumerProguardFiles 'proguard-rules.pro'
 
     externalNativeBuild {
       cmake {
