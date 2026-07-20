@@ -1,4 +1,19 @@
 
+# [0.2.0-alpha.4](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-alpha.3...v0.2.0-alpha.4) (2026-07-20)
+
+# [0.2.0-alpha.3](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-alpha.2...v0.2.0-alpha.3) (2026-07-20)
+
+
+### Bug Fixes
+
+* **android:** fix schemes issues in `openStream` and `resolveUri` ([#14](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/14)) ([2fc2b04](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/2fc2b04f7b048662192a79945c2bbc1f5d48146c))
+* **ios:** prevent silent failures in `WebEncoder` and fix typos ([#16](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/16)) ([171808a](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/171808a6004371f7949557722f8e2671b3636228))
+
+
+### Features
+
+* add `format` and `fileSize` to `CompressedResult` ([#18](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/18)) ([25acf72](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/25acf729864473cc9112b05944d19ef654f34a7c))
+
 # [0.2.0-alpha.2](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-alpha.1...v0.2.0-alpha.2) (2026-07-18)
 
 
