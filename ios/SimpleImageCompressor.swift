@@ -69,7 +69,8 @@ class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
         width: Double(compressedResult.width),
         height: Double(compressedResult.height),
         format: outputImageFormat,
-        fileSize: Double(compressedResult.fileSize)
+        fileSize: Double(compressedResult.fileSize),
+        originalFileSize: Double(compressedResult.originalFileSize)
       )
     }
   }

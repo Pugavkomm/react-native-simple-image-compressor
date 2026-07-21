@@ -14,6 +14,10 @@ export interface CompressedResult {
   format: OutputCompressedFormat;
   /** The compressed image's file size in bytes */
   fileSize: number;
+  /**
+   * The original image's file size in bytes
+   */
+  originalFileSize: number;
 }
 
 export interface CompressOptions {

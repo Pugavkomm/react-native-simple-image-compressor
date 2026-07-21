@@ -1792,7 +1792,7 @@ PODS:
     - React-utils (= 0.85.0)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.85.0)
-  - SimpleImageCompressor (0.2.0-alpha.2):
+  - SimpleImageCompressor (0.2.0-beta.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -1814,9 +1814,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - SimpleImageCompressor/Core (= 0.2.0-alpha.2)
+    - SimpleImageCompressor/Core (= 0.2.0-beta.0)
     - Yoga
-  - SimpleImageCompressor/Core (0.2.0-alpha.2):
+  - SimpleImageCompressor/Core (0.2.0-beta.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2151,7 +2151,7 @@ SPEC CHECKSUMS:
   ReactCodegen: b3184a229afd01e7f8058dd81b805b843caa2bf9
   ReactCommon: fe2a3af8975e63efa60f95fca8c34dc85deee360
   ReactNativeDependencies: 1a9277ace6124a2461d74462f910180175bd37aa
-  SimpleImageCompressor: 1bc362a1c22ef2c0f1b29c6561b1879e0c01e5f6
+  SimpleImageCompressor: 6dcc68d662488a157da38be9591d4bf6cd42d4a6
   Yoga: e83c3121d079541e69f3c5c623faaaf933fb5812
 
 PODFILE CHECKSUM: 30619dfff82428b21c5ba374b54377f0747ecfec
