@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.2.0-rc.0](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-beta.0...v0.2.0-rc.0) (2026-07-21)
+
+
+### Features
+
+* add `originalFileSize` to `CompressedResult` ([#36](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/36)) ([e54ecd4](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/e54ecd4bcaa0d5db5e8f9ad1d6e0b74366c4844e))
+
 # [0.2.0-beta.0](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-alpha.4...v0.2.0-beta.0) (2026-07-20)
 
 
