@@ -1,11 +1,13 @@
 package com.margelo.nitro.simpleimagecompressor
 
 import android.content.Context
+import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
+import android.provider.OpenableColumns
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
@@ -119,7 +121,8 @@ object SimpleCompressorService {
       width = physicalTargetWidth.toDouble(),
       height = physicalTargetHeight.toDouble(),
       format = format,
-      fileSize = getFileSizeInDouble(resultFile)
+      fileSize = getFileSizeInDouble(resultFile),
+      originalFileSize = getOriginalFileSizeInDouble(context, fileUri)
     )
   }
 
@@ -313,6 +316,35 @@ object SimpleCompressorService {
       OutputCompressedFormat.WEBP, OutputCompressedFormat.WEBP_LOSSLESS -> ".webp"
       OutputCompressedFormat.JPG, OutputCompressedFormat.JPEG -> ".jpg"
     }
+  }
+
+  private fun getOriginalFileSizeInDouble(context: Context, uri: Uri): Double {
+    try {
+      if (uri.scheme == "content" || uri.scheme == "android.resource") {
+        context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { fd ->
+          val length = fd.length
+          if (length != AssetFileDescriptor.UNKNOWN_LENGTH) {
+            return length.toDouble()
+          }
+        }
+
+        if (uri.scheme == "content") {
+          context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            if (sizeIndex != -1 && cursor.moveToFirst()) {
+              return cursor.getLong(sizeIndex).toDouble()
+            }
+          }
+        }
+      } else {
+        var path = uri.path ?: uri.toString().removePrefix("file://")
+        return File(path).length().toDouble()
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
+
+    return 0.0
   }
 
   private fun getFileSizeInDouble(file: File): Double {

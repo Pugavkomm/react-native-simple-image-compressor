@@ -158,13 +158,14 @@ Currently, only one compression method is available: `compressImage`. It accepts
 
 The method `compressImage` returns a `CompressResult` object. See all available properties below:
 
-| Property name | Type                                                | Required | Description                                                                |
-|---------------|-----------------------------------------------------|----------|----------------------------------------------------------------------------|
-| uri           | `string`                                            | YES      | The local file URI of the compressed image (e.g., `file:///path/to/image`) |
-| width         | `number`                                            | YES      | The width of the compressed image in pixels                                |
-| height        | `number`                                            | YES      | The height of the compressed image in pixels                               |
-| fileSize      | `number`                                            | YES      | The compressed image's file size in bytes                                  |
-| format        | [`OutputCompressedFormat`](#outputcompressedformat) | YES      | The final compressed image format                                          |
+| Property name    | Type                                                | Required | Description                                                                |
+|------------------|-----------------------------------------------------|----------|----------------------------------------------------------------------------|
+| uri              | `string`                                            | YES      | The local file URI of the compressed image (e.g., `file:///path/to/image`) |
+| width            | `number`                                            | YES      | The width of the compressed image in pixels                                |
+| height           | `number`                                            | YES      | The height of the compressed image in pixels                               |
+| format           | [`OutputCompressedFormat`](#outputcompressedformat) | YES      | The final compressed image format                                          |
+| fileSize         | `number`                                            | YES      | The compressed image's file size in bytes                                  |
+| originalFileSize | `number`                                            | YES      | The original image's file size in bytes                                    |
 
 > **Important note**: Due to iOS compatibility fallbacks, the returned `format` property may be `jpg` even when `webp`
 > or `webp-lossless` is requiest. See details in [Enable support webp on iOS](#enable-support-webp-on-ios)

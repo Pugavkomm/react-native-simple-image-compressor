@@ -13,8 +13,9 @@ public struct CompressResultWithMetadata {
   var uri: URL
   var height: Int
   var width: Int
-  var fileSize: Int
   var format: ImageFormat
+  var fileSize: Int
+  var originalFileSize: Int
 }
 
 enum ImageCompressorError: Int, LocalizedError, CustomNSError {
@@ -85,10 +86,7 @@ struct ImageCompressorService {
     enablePhysicalRotation: Bool = false
   ) throws -> CompressResultWithMetadata {
 
-    // Metadata for the final output.
-    // 'outputFormat' may change if WebP is not supported and we fallback to JPEG.
-    var fileSize = 0
-    var outputFormat = imageFormat
+    
 
     // Validation
     try isValidParameters(
@@ -101,6 +99,14 @@ struct ImageCompressorService {
 
     // Read source
     let source = try readSource(sourceUrl: sourceUrl)
+    
+    // Metadata for the final output.
+    // 'outputFormat' may change if WebP is not supported and we fallback to JPEG.
+    var fileSize = 0
+    let originalFileSize = try getFileSize(fileUrl: sourceUrl)
+    var outputFormat = imageFormat
+    
+    
 
     // EXIF
     let originalProps = prepareEXIF(
@@ -170,8 +176,9 @@ struct ImageCompressorService {
       uri: destinationUrl,
       height: downSampleImage.height,
       width: downSampleImage.width,
+      format: outputFormat,
       fileSize: fileSize,
-      format: outputFormat
+      originalFileSize: originalFileSize
     )
   }
 

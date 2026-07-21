@@ -521,4 +521,26 @@ class SimpleCompressorServiceTest {
     assert(result.fileSize > 0)
   }
 
+  @Test
+  fun `test compress correct original and compressed file sizes`() {
+    val testFile = createTestImageFile(1000, 1000)
+    val result = SimpleCompressorService.compress(
+      context = context,
+      sourceUri = testFile,
+      quality = 0.5,
+      maxWidth = 25,
+      maxHeight = 25,
+      format = OutputCompressedFormat.WEBP
+    )
+
+    val originalFile = File(testFile.removePrefix("file://"))
+    val resultFile = File(result.uri.removePrefix("file://"))
+
+    assertEquals(originalFile.length().toDouble(), result.originalFileSize)
+    assertEquals(resultFile.length().toDouble(), result.fileSize)
+
+    originalFile.delete()
+    resultFile.delete()
+  }
+
 }

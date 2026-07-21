@@ -527,4 +527,30 @@ final class SimpleImageCompressorTests: XCTestCase {
     XCTAssertEqual(result.format, .jpg)
   }
 
+  func testCompress_correctOriginalAndCompressedFileSizes() throws {
+    let testUrl = createTestImage(width: 1000, height: 1000)
+    let result = try ImageCompressorService.compress(
+      sourceUrl: testUrl,
+      quality: 0.5,
+      maxWidth: 25,
+      maxHeight: 25,
+      imageFormat: .webp
+    )
+
+    let resultUrl = result.uri
+
+    let originalResourceValues = try testUrl.resourceValues(forKeys: [
+      .fileSizeKey
+    ])
+    let compressedResourceValues = try resultUrl.resourceValues(
+      forKeys: [.fileSizeKey]
+    )
+
+    let originalFileSize = originalResourceValues.fileSize
+    let compressedFileSize = compressedResourceValues.fileSize
+    
+    XCTAssertEqual(result.originalFileSize, originalFileSize)
+    XCTAssertEqual(result.fileSize, compressedFileSize)
+  }
+
 }
