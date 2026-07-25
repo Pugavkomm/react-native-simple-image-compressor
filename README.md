@@ -12,7 +12,6 @@
 Simple image compressor
 
 <!-- TOC -->
-
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
   * [Abstract](#abstract)
   * [Features](#features)
@@ -24,6 +23,8 @@ Simple image compressor
   * [CompressOptions](#compressoptions)
   * [CompressedResult](#compressedresult)
   * [EXIF metadata](#exif-metadata)
+  * [Additional functions](#additional-functions)
+    * [getFileSize](#getfilesize)
   * [Dependencies](#dependencies)
     * [Android](#android)
     * [iOS](#ios)
@@ -35,7 +36,6 @@ Simple image compressor
   * [Changelog](#changelog)
   * [License](#license)
   * [TODO](#todo)
-
 <!-- TOC -->
 
 ## Abstract
@@ -176,6 +176,19 @@ The method `compressImage` returns a `CompressResult` object. See all available 
 > see [OutputCompressedFormat](#outputcompressedformat)). Other output formats (`png`, `webp`, `webp-lossless`) do not
 > support
 > this feature
+
+## Additional functions
+
+In this section, some additional functions of the library are described.
+
+### getFileSize
+
+Use `getFileSize` to retrieve the size of a file. This is useful for making decisions before compression (e.g., checking
+if a file needs to be compressed) or verifying the file size after compression.
+
+Example
+
+[//]: # TODO: add example()
 
 ## Dependencies
 

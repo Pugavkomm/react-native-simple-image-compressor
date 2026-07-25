@@ -18,43 +18,6 @@ public struct CompressResultWithMetadata {
   var originalFileSize: Int
 }
 
-enum ImageCompressorError: Int, LocalizedError, CustomNSError {
-  case cannotReadSource = 1
-  case cannotReadDimensions = 2
-  case cannotCreateDestination = 3
-  case writeFailed = 4
-  case invalidSourceUrl = 5
-  case fileDoesNotExist = 6
-  case downsamplingFailed = 7
-  case invalidTargetParameter = 8
-
-  static var errorDomain: String {
-    return "ImageCompressor"
-  }
-
-  var errorCode: Int {
-    return self.rawValue
-  }
-
-  var errorUserInfo: [String: Any] {
-    return [NSLocalizedDescriptionKey: errorDescription ?? "Unknown error"]
-  }
-
-  var errorDescription: String? {
-    switch self {
-    case .cannotReadSource: return "Cannot read source file"
-    case .cannotReadDimensions: return "Failed to read image dimensions"
-    case .cannotCreateDestination: return "Cannot create destination file"
-    case .writeFailed: return "Failed to write image to disk"
-    case .invalidSourceUrl:
-      return "Source URL must be a local file path (file://)"
-    case .fileDoesNotExist: return "File does not exist at the specified path"
-    case .downsamplingFailed: return "Downsampling failed"
-    case .invalidTargetParameter: return "Invalid target parameters"
-    }
-  }
-}
-
 struct ImageCompressorService {
 
   // MARK: - Constants
@@ -86,8 +49,6 @@ struct ImageCompressorService {
     enablePhysicalRotation: Bool = false
   ) throws -> CompressResultWithMetadata {
 
-    
-
     // Validation
     try isValidParameters(
       quality: quality,
@@ -99,14 +60,12 @@ struct ImageCompressorService {
 
     // Read source
     let source = try readSource(sourceUrl: sourceUrl)
-    
+
     // Metadata for the final output.
     // 'outputFormat' may change if WebP is not supported and we fallback to JPEG.
     var fileSize = 0
-    let originalFileSize = try getFileSize(fileUrl: sourceUrl)
+    let originalFileSize = try FileUtils.fetchFileSize(fileUrl: sourceUrl)
     var outputFormat = imageFormat
-    
-    
 
     // EXIF
     let originalProps = prepareEXIF(
@@ -158,7 +117,7 @@ struct ImageCompressorService {
           metadata: originalProps,
         )
         outputFormat = .jpg
-        fileSize = try getFileSize(fileUrl: destinationUrl)
+        fileSize = try FileUtils.fetchFileSize(fileUrl: destinationUrl)
       #endif
     default:
       try writeWithImageIO(
@@ -169,7 +128,7 @@ struct ImageCompressorService {
         metadata: originalProps,
       )
 
-      fileSize = try getFileSize(fileUrl: destinationUrl)
+      fileSize = try FileUtils.fetchFileSize(fileUrl: destinationUrl)
     }
 
     return CompressResultWithMetadata(
@@ -180,19 +139,6 @@ struct ImageCompressorService {
       fileSize: fileSize,
       originalFileSize: originalFileSize
     )
-  }
-
-  private static func getFileSize(fileUrl: URL) throws -> Int {
-    guard
-      let resourceValues = try? fileUrl.resourceValues(forKeys: [
-        .fileSizeKey
-      ]),
-      let size = resourceValues.fileSize
-    else {
-      throw ImageCompressorError.writeFailed
-    }
-
-    return size
   }
 
   private static func writeWithImageIO(

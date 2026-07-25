@@ -2,30 +2,22 @@ import Foundation
 import NitroModules
 
 class SimpleImageCompressor: HybridSimpleImageCompressorSpec {
+  func getFileSize(uri: String) throws -> NitroModules.Promise<Double> {
+    return Promise.async {
+      let sourceUrl = try FileUtils.getCleanUri(uriString: uri)
+      let size = try FileUtils.fetchFileSize(fileUrl: sourceUrl)
+      return Double(size)
+    }
+  }
+
   var memorySize: Int { return 0 }
 
   public func compressImage(uri: String, options: CompressOptions) throws
     -> Promise<CompressedResult>
   {
     return Promise.async {
-      let cleanUri = uri.replacingOccurrences(of: "file://", with: "")
 
-      guard !cleanUri.isEmpty else {
-        throw NSError(
-          domain: "SimpleImageCompressor",
-          code: 100,
-          userInfo: [
-            NSLocalizedDescriptionKey: "Invalid URI format: path is empty"
-          ]
-        )
-      }
-
-      let sourceUrl: URL
-      if #available(iOS 16.0, *) {
-        sourceUrl = URL(filePath: cleanUri)
-      } else {
-        sourceUrl = URL(fileURLWithPath: cleanUri)
-      }
+      let sourceUrl = try FileUtils.getCleanUri(uriString: uri)
 
       let quality = options.quality
       let maxWidth = options.maxWidth.map { Int($0) }

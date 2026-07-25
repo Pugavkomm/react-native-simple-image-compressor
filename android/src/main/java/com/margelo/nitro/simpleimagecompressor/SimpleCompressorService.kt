@@ -1,14 +1,12 @@
 package com.margelo.nitro.simpleimagecompressor
 
 import android.content.Context
-import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
-import android.provider.OpenableColumns
-import androidx.core.net.toUri
+import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.io.FileInputStream
@@ -67,7 +65,7 @@ object SimpleCompressorService {
   ): CompressedResult {
     //  Validation
     isValidParameters(quality, maxWidth, maxHeight)
-    val fileUri = resolveUri(sourceUri)
+    val fileUri = getCleanUri(sourceUri)
     //  Read source
     val sourceOptions = decodeBounds(context, fileUri)
     var (height: Int, width: Int) = sourceOptions.run { outHeight to outWidth }
@@ -121,8 +119,8 @@ object SimpleCompressorService {
       width = physicalTargetWidth.toDouble(),
       height = physicalTargetHeight.toDouble(),
       format = format,
-      fileSize = getFileSizeInDouble(resultFile),
-      originalFileSize = getOriginalFileSizeInDouble(context, fileUri)
+      fileSize = resultFile.length().toDouble(),
+      originalFileSize = fetchFileSizeByUri(context, fileUri).toDouble()
     )
   }
 
@@ -133,17 +131,6 @@ object SimpleCompressorService {
 
     if ((maxWidth != null && maxWidth <= 0) || (maxHeight != null && maxHeight <= 0))
       throw ImageCompressorException.InvalidParameters()
-  }
-
-  private fun resolveUri(uriString: String): Uri {
-    val cleanUri =
-      if (
-        !uriString.startsWith("file://")
-        && !uriString.startsWith("content://")
-        && !uriString.startsWith("android.resource://")
-      ) "file://${uriString}"
-      else uriString
-    return cleanUri.toUri()
   }
 
   //  Two-pass decoding
@@ -318,38 +305,6 @@ object SimpleCompressorService {
     }
   }
 
-  private fun getOriginalFileSizeInDouble(context: Context, uri: Uri): Double {
-    try {
-      if (uri.scheme == "content" || uri.scheme == "android.resource") {
-        context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { fd ->
-          val length = fd.length
-          if (length != AssetFileDescriptor.UNKNOWN_LENGTH) {
-            return length.toDouble()
-          }
-        }
-
-        if (uri.scheme == "content") {
-          context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-            if (sizeIndex != -1 && cursor.moveToFirst()) {
-              return cursor.getLong(sizeIndex).toDouble()
-            }
-          }
-        }
-      } else {
-        var path = uri.path ?: uri.toString().removePrefix("file://")
-        return File(path).length().toDouble()
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    }
-
-    return 0.0
-  }
-
-  private fun getFileSizeInDouble(file: File): Double {
-    return file.length().toDouble()
-  }
 
   private fun compressToFile(
     bitMap: Bitmap,
@@ -406,7 +361,7 @@ object SimpleCompressorService {
         }
       }
     } catch (e: Exception) {
-      e.printStackTrace()
+      Log.e("SimpleCompressor", "Failed to copy EXIF metadata", e)
     }
   }
 
@@ -433,14 +388,17 @@ object SimpleCompressorService {
       return if (uri.scheme == "content" || uri.scheme == "android.resource") {
         context.contentResolver.openInputStream(uri)
       } else {
-        val path = uri.path ?: uri.toString().removePrefix("file://")
+        val path = getFilePath(uri)
         FileInputStream(File(path))
       }
-    } catch (_: FileNotFoundException) {
+    } catch (e: FileNotFoundException) {
+      Log.e("SimpleCompressor", "File not found for URI: $uri", e)
       throw ImageCompressorException.FileNotFound()
-    } catch (_: SecurityException) {
+    } catch (e: SecurityException) {
+      Log.e("SimpleCompressor", "Security exception: Lack of permissions to read URI: $uri", e)
       throw ImageCompressorException.CannotReadResource()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+      Log.e("SimpleCompressor", "Unexpected error while opening stream for URI: $uri", e)
       throw ImageCompressorException.CannotReadResource()
     }
   }

@@ -93,7 +93,10 @@ private let bytesPerPixel = 4
       throw NSError(
         domain: "WebPError",
         code: 1,
-        userInfo: [NSLocalizedDescriptionKey: "The libwebp encoder failed to process the image."]
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "The libwebp encoder failed to process the image."
+        ]
       )
     }
 
