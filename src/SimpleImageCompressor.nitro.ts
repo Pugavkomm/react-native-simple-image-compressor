@@ -59,4 +59,6 @@ export interface SimpleImageCompressor extends HybridObject<{
     uri: string,
     options: CompressOptions
   ): Promise<CompressedResult>;
+
+  getFileSize(uri: string): Promise<number>;
 }

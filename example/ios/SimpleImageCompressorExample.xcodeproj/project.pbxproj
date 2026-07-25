@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-SimpleImageCompressorExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-SimpleImageCompressorExample.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		1E20587F3013BBF3000D49A0 /* ImageCompressorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E20587D3013BBF3000D49A0 /* ImageCompressorError.swift */; };
+		1E2058963013C12C000D49A0 /* FileUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2058953013C12C000D49A0 /* FileUtils.swift */; };
 		1EC35C3A3000903A00C01AB7 /* WebPEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC35C383000903A00C01AB7 /* WebPEncoder.swift */; };
 		1EC35C3B3000903A00C01AB7 /* ImageCompressorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC35C393000903A00C01AB7 /* ImageCompressorService.swift */; };
 		47CF6BD76EE8990F358E2CD0 /* libPods-SimpleImageCompressorTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D56E246E62DDD8B29EBED154 /* libPods-SimpleImageCompressorTests.a */; };
@@ -32,6 +34,8 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SimpleImageCompressorExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SimpleImageCompressorExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = SimpleImageCompressorExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1E20587D3013BBF3000D49A0 /* ImageCompressorError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageCompressorError.swift; path = ../../ios/ImageCompressorError.swift; sourceTree = "<group>"; };
+		1E2058953013C12C000D49A0 /* FileUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileUtils.swift; path = ../../ios/FileUtils.swift; sourceTree = "<group>"; };
 		1EC35C383000903A00C01AB7 /* WebPEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebPEncoder.swift; path = ../../ios/WebPEncoder.swift; sourceTree = "<group>"; };
 		1EC35C393000903A00C01AB7 /* ImageCompressorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageCompressorService.swift; path = ../../ios/ImageCompressorService.swift; sourceTree = "<group>"; };
 		1EE80A042FFB0C2400D4B569 /* SimpleImageCompressorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleImageCompressorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,17 +51,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		1EE80A052FFB0C2400D4B569 /* SimpleImageCompressorTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = SimpleImageCompressorTests;
-			sourceTree = "<group>";
-		};
+		1EE80A052FFB0C2400D4B569 /* SimpleImageCompressorTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SimpleImageCompressorTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +106,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				1E2058953013C12C000D49A0 /* FileUtils.swift */,
+				1E20587D3013BBF3000D49A0 /* ImageCompressorError.swift */,
 				1EC35C393000903A00C01AB7 /* ImageCompressorService.swift */,
 				1EC35C383000903A00C01AB7 /* WebPEncoder.swift */,
 				13B07FAE1A68108700A75B9A /* SimpleImageCompressorExample */,
@@ -273,9 +269,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SimpleImageCompressorExample/Pods-SimpleImageCompressorExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SimpleImageCompressorExample/Pods-SimpleImageCompressorExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -334,9 +334,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SimpleImageCompressorExample/Pods-SimpleImageCompressorExample-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SimpleImageCompressorExample/Pods-SimpleImageCompressorExample-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -358,6 +362,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E2058963013C12C000D49A0 /* FileUtils.swift in Sources */,
+				1E20587F3013BBF3000D49A0 /* ImageCompressorError.swift in Sources */,
 				1EC35C3A3000903A00C01AB7 /* WebPEncoder.swift in Sources */,
 				1EC35C3B3000903A00C01AB7 /* ImageCompressorService.swift in Sources */,
 			);
