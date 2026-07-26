@@ -8,7 +8,7 @@ pre-commit:
 
     types:
       glob: "*.{js,ts, jsx, tsx}"
-      run: npx tsc
+      run: npx tsc --project tsconfig.build.json --noEmit && cd example && npx tsc --noEmit
 commit-msg:
   parallel: true
   commands:
