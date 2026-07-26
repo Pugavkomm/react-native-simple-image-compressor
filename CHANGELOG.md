@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.1-alpha.0](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0...v0.2.1-alpha.0) (2026-07-26)
+
+
+### Bug Fixes
+
+* **example:** remove predefined quality ([#43](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/43)) ([11c9d3e](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/11c9d3e23c3316e5f6f39f38f2a973d5637c1219))
+
+
+### Features
+
+* add `getFileSize` function ([#40](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/40)) ([df40721](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/df40721f03584967b00a454a227074e632a32183))
+* add hook `useImageCompressor`, `isImageCompressorError` utility, and enhance doc ([#41](https://github.com/Pugavkomm/react-native-simple-image-compressor/issues/41)) ([3fbcc0e](https://github.com/Pugavkomm/react-native-simple-image-compressor/commit/3fbcc0ebd53eecef106f1a6ccb60b2113045e49d))
+
 # [0.2.0](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-rc.0...v0.2.0) (2026-07-22)
 
 # [0.2.0-rc.0](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0-beta.0...v0.2.0-rc.0) (2026-07-21)
