@@ -80,7 +80,6 @@ export const CompressorWidget = () => {
 
     const finalOptions: CompressOptions = {
       ...options,
-      quality: 1,
       maxWidth: options.maxWidth === 0 ? undefined : options.maxWidth,
       maxHeight: options.maxHeight === 0 ? undefined : options.maxHeight,
     };
