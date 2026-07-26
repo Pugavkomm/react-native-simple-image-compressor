@@ -4,10 +4,16 @@ import type {
   CompressOptions,
   SimpleImageCompressor,
 } from './SimpleImageCompressor.nitro';
-import { ImageCompressorError } from './imageCompressorError';
+import { ImageCompressorError } from './ImageCompressorError';
 
 let hybridObject: SimpleImageCompressor | null = null;
 
+/**
+ * Compresses an image based on the provided URI and options.
+ * @param uri - The local file URI of the image to compress.
+ * @param options - Configuration options for compression (e.g., quality, format).
+ * @returns A promise that resolves to the compressed image result, or null if an error occurred.
+ */
 export async function compressImage(
   uri: string,
   options: CompressOptions

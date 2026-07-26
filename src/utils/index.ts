@@ -1,0 +1,1 @@
+export { isImageCompressorError } from './isImageCompressorError';
