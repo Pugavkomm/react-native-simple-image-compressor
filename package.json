@@ -38,7 +38,7 @@
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
     "nitrogen": "nitrogen",
-    "typecheck": "tsc",
+    "typecheck": "tsc --project tsconfig.build.json --noEmit && cd example && tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
     "release": "release-it --only-version",
