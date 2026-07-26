@@ -80,6 +80,7 @@
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@jest/globals": "^29.7.0",
+    "@react-native-community/cli": "20.1.0",
     "@react-native/babel-preset": "0.85.0",
     "@react-native/eslint-config": "0.85.0",
     "@react-native/jest-preset": "0.85.0",
