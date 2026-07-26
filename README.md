@@ -11,11 +11,19 @@
 
 Simple image compressor
 
+## Installation
+
+```sh
+npm install react-native-simple-image-compressor react-native-nitro-modules
+```
+
+> **Important Note**: [Read more about WebP support on iOS](#enable-support-webp-on-ios)
+
 <!-- TOC -->
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
+  * [Installation](#installation)
   * [Abstract](#abstract)
   * [Features](#features)
-  * [Installation](#installation)
   * [Enable support WebP on IOS](#enable-support-webp-on-ios)
   * [Usage](#usage)
   * [Input formats](#input-formats)
@@ -63,12 +71,6 @@ uploading them to a server.
   bounds without ever stretching or distorting the original aspect ratio.
 - **Production Ready & Tested**: Backed by comprehensive native unit tests (Swift/Kotlin) to ensure maximum stability
   and prevent regressions across edge cases.
-
-## Installation
-
-```sh
-npm install react-native-simple-image-compressor react-native-nitro-modules
-```
 
 > `react-native-nitro-modules` is required as this library relies on [Nitro Modules](https://nitro.margelo.com/).
 
