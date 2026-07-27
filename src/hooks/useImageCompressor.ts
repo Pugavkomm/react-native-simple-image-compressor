@@ -6,7 +6,7 @@ import type {
 } from '../SimpleImageCompressor.nitro';
 import { compressImage } from '../compressImage';
 import { ImageCompressorError } from '../ImageCompressorError';
-import { getFileSize } from '../getFileSize';
+import { getFileSize as _getFileSize } from '../getFileSize';
 
 /**
  * A hook that provides stateful methods for image compression and file size calculation.
@@ -52,13 +52,13 @@ export function useImageCompressor() {
     },
     []
   );
-  const fetchFileSize = useCallback(
+  const getFileSize = useCallback(
     async (uri: string): Promise<number | null> => {
       setIsGettingSize(true);
       setError(null);
 
       try {
-        return await getFileSize(uri);
+        return await _getFileSize(uri);
       } catch (e) {
         if (e instanceof ImageCompressorError) {
           setError(e);
@@ -84,7 +84,7 @@ export function useImageCompressor() {
      * @param uri - The local file URI of the image.
      * @returns A promise that resolves to the file size in bytes, or nul if an error occurred.
      */
-    fetchFileSize,
+    getFileSize,
     /** Indicates whether an image is currently being compressed. */
     isCompressing,
     /** Indicates whether the file size is currently being calculated. */

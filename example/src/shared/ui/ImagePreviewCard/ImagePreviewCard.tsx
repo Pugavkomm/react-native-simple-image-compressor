@@ -2,6 +2,9 @@ import { Card } from '@shared/ui/Card';
 import { TextBlock } from '@shared/ui/TextBlock';
 import { Stack } from '@shared/ui/Stack';
 import { Image, StyleSheet } from 'react-native';
+import { useImageCompressor } from 'react-native-simple-image-compressor';
+import { useEffect, useState } from 'react';
+
 const formatSize = (bytes: number | null) => {
   if (bytes === null) return '';
   if (bytes < 1024) return `${bytes} B`;
@@ -21,6 +24,15 @@ export const ImagePreviewCard = ({
   size,
   action,
 }: ImagePreviewCardProps) => {
+  const { getFileSize } = useImageCompressor();
+  const [fileSize, setFileSize] = useState<number | null>(null);
+
+  useEffect(() => {
+    getFileSize(uri).then((fsize) => {
+      setFileSize(fsize);
+    });
+  }, [getFileSize, uri]);
+
   return (
     <Card>
       <Card.Header>
@@ -30,9 +42,12 @@ export const ImagePreviewCard = ({
       </Card.Header>
       <Card.Body gap="regular">
         <Image source={{ uri }} style={styles.preview} />
-        <Stack direction="row" align="center" justify="space-between">
+        <Stack direction="col" align="center" justify="space-between">
           <TextBlock color="secondary" size="sm">
             Size: {formatSize(size)}
+          </TextBlock>
+          <TextBlock color="accent" size="sm">
+            getFileSize result: {formatSize(fileSize)}
           </TextBlock>
           {action}
         </Stack>
