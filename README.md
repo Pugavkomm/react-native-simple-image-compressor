@@ -7,6 +7,7 @@
 ![React Native](https://img.shields.io/badge/React%20Native-%E2%89%A50.70-61DAFB.svg?logo=react)
 ![Nitro Modules](https://img.shields.io/badge/Architecture-Nitro%20Modules-FF4B4B.svg)
 [![npm downloads](https://img.shields.io/npm/dm/react-native-simple-image-compressor.svg)](https://www.npmjs.com/package/react-native-simple-image-compressor)
+[![Socket Badge](https://badge.socket.dev/npm/package/react-native-simple-image-compressor/0.2.0)](https://badge.socket.dev/npm/package/react-native-simple-image-compressor/0.2.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Pugavkomm/react-native-simple-image-compressor/blob/dev/CONTRIBUTING.md)
 
 Simple image compressor
@@ -19,6 +20,10 @@ npm install react-native-simple-image-compressor react-native-nitro-modules
 
 > **Important Note**: [Read more about WebP support on iOS](#enable-support-webp-on-ios)
 
+<img src="docs/assets/example.gif" width="300" alt="Example application demo" />
+
+*Fig. 1. Example application demo*
+
 <!-- TOC -->
 * [react-native-simple-image-compressor](#react-native-simple-image-compressor)
   * [Installation](#installation)
@@ -26,6 +31,8 @@ npm install react-native-simple-image-compressor react-native-nitro-modules
   * [Features](#features)
   * [Enable support WebP on IOS](#enable-support-webp-on-ios)
   * [Usage](#usage)
+    * [Imperative API](#imperative-api)
+    * [As a hook](#as-a-hook)
   * [Input formats](#input-formats)
   * [OutputCompressedFormat](#outputcompressedformat)
   * [CompressOptions](#compressoptions)
@@ -89,11 +96,17 @@ pod 'libwebp', :modular_headers => true
 > **Note**: If you omit these lines, the output format will automatically fall back to `.jpg` when `.webp` or
 `.webp-lossless` is requested.
 
+> **⚠️Important**: WebP and WebP-Lossless compression can be slow in debug mode. Test in release mode for actual
+> performance.
+
 ## Usage
+
+### Imperative API
 
 ```tsx
 import {
   compressImage,
+  getFileSize,
   type CompressOptions,
 } from 'react-native-simple-image-compressor';
 
@@ -106,14 +119,71 @@ const options: CompressOptions = {
   format: 'webp',
 };
 
+const originalSize = await getFileSize(originalImageUri);
+console.log(`Original size: ${originalSize} bytes`);
+
 const result = await compressImage(originalImageUri, options);
+console.log(`Compressed size: ${result.fileSize} bytes`);
 
 //...
 
 <Image
   source={{ uri: result.uri }}
   style={styles.imagePreview}
-/>;
+/>
+```
+
+### As a hook
+
+You can use the hook `useImageCompressor`:
+
+```tsx
+import { Alert } from 'react-native';
+import { type CompressOptions, useImageCompressor, } from 'react-native-simple-image-compressor';
+
+export const CompressorWidget = () => {
+  // ...
+  const { compress, getFileSize, isCompressing } = useImageCompressor();
+
+  const [options, setOptions] = useState<CompressOptions>({
+    format: 'webp',
+    quality: 0.8,
+    maxWidth: 1000,
+    maxHeight: 1000,
+  });
+
+  const checkOriginalSize = async () => {
+    if (!originalImage) return;
+    const size = await getFileSize(originalImage);
+    if (size) console.log(`Original size: ${size} bytes`);
+  };
+
+  const handleCompress = async () => {
+    if (!originalImage) return;
+
+    const finalOptions: CompressOptions = {
+      ...options,
+      maxWidth: options.maxWidth === 0 ? undefined : options.maxWidth,
+      maxHeight: options.maxHeight === 0 ? undefined : options.maxHeight,
+    };
+
+    const result = await compress(originalImage, finalOptions);
+    if (result) {
+      setCompressedImage(result.uri);
+      // use the library's returned fileSize if available, otherwise fallback
+      if (result.fileSize) {
+        setCompressedSize(result.fileSize);
+      } else {
+        const size = await getFileSize(result.uri);
+        if (size) setCompressedSize(size);
+      }
+    } else {
+      Alert.alert('Error', 'Compression failed');
+    }
+  };
+
+  // ...
+};
 ```
 
 ## Input formats
@@ -188,9 +258,24 @@ In this section, some additional functions of the library are described.
 Use `getFileSize` to retrieve the size of a file. This is useful for making decisions before compression (e.g., checking
 if a file needs to be compressed) or verifying the file size after compression.
 
-Example
+Example:
 
-[//]: # TODO: add example()
+```tsx
+import { getFileSize } from 'react-native-simple-image-compressor';
+
+const checkFileSize = async (uri: string) => {
+  try {
+    const sizeInBytes = await getFileSize(uri);
+    console.log(`File size is ${sizeInBytes} bytes`);
+
+    if (sizeInBytes > 5 * 1024 * 1024) {
+      console.log('File is larger than 5MB, consider compressing it.');
+    }
+  } catch (error) {
+    console.error('Failed to get file size:', error);
+  }
+};
+```
 
 ## Dependencies
 
