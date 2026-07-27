@@ -70,11 +70,15 @@ fun getCleanUri(uriString: String): Uri {
 fun fetchFileSizeByUri(context: Context, uri: Uri): Long {
   try {
     if (uri.scheme == "content" || uri.scheme == "android.resource") {
-      context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { fd ->
-        val length = fd.length
-        if (length != AssetFileDescriptor.UNKNOWN_LENGTH) {
-          return length
+      try {
+        context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { fd ->
+          val length = fd.length
+          if (length != AssetFileDescriptor.UNKNOWN_LENGTH) {
+            return length
+          }
         }
+      } catch (e: Exception) {
+        Log.w("FileUtils", "Failed to fetch file size for URI via openAssetFileDescriptor: $uri", e)
       }
 
       if (uri.scheme == "content") {
