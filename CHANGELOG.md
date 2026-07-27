@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.2.1](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.1-alpha.0...v0.2.1) (2026-07-27)
+
 ## [0.2.1-alpha.0](https://github.com/Pugavkomm/react-native-simple-image-compressor/compare/v0.2.0...v0.2.1-alpha.0) (2026-07-26)
 
 
