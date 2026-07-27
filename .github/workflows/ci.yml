@@ -45,6 +45,11 @@ jobs:
 
       - name: Run unit tests
         run: yarn test --maxWorkers=2 --coverage
+      - name: Upload JS coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: javascript
 
   build-library:
     runs-on: ubuntu-latest
@@ -124,7 +129,13 @@ jobs:
       - name: Run Android Unit Tests
         run: |
           cd example/android
-          ./gradlew :react-native-simple-image-compressor:testDebugUnitTest
+          ./gradlew :react-native-simple-image-compressor:jacocoTestReport
+
+      - name: Upload Android coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: android
 
   build-and-test-ios:
     name: Build and Test iOS (${{ matrix.label }})
@@ -198,7 +209,14 @@ jobs:
             -scheme SimpleImageCompressorExample \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
             -only-testing:SimpleImageCompressorTests \
-            -quiet
+            -quiet \
+            -enableCodeCoverage YES
+
+      - name: Upload iOS coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ios
 
   build-web:
     runs-on: ubuntu-latest

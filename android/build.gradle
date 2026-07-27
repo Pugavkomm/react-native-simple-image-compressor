@@ -35,6 +35,12 @@ apply plugin: "kotlin-android"
 apply from: '../nitrogen/generated/android/simpleimagecompressor+autolinking.gradle'
 
 apply plugin: "com.facebook.react"
+apply plugin: "jacoco"
+
+
+jacoco {
+  toolVersion = "0.8.15"
+}
 
 android {
   namespace "com.margelo.nitro.simpleimagecompressor"
@@ -110,6 +116,11 @@ android {
     unitTests {
       includeAndroidResources = true
       all {
+        jacoco {
+          includeNoLocationClasses = true
+          excludes = ["jdk.internal.*"]
+        }
+
         testLogging {
           events "passed", "skipped", "failed"
           exceptionFormat "full"
@@ -126,4 +137,45 @@ dependencies {
   testImplementation 'junit:junit:4.13.2'
   testImplementation 'org.robolectric:robolectric:4.11.1'
   testImplementation 'org.jetbrains.kotlin:kotlin-test'
+}
+
+// Coverage
+tasks.register('jacocoTestReport', JacocoReport) {
+  dependsOn "testDebugUnitTest"
+
+  group = "Reporting"
+  description = "Generate Jacoco coverage reports for the debug build."
+
+  reports {
+    xml.required = true
+    html.required = true
+  }
+
+  def fileFilter = [
+    '**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*',
+    '**/*Test*.*', 'android/**/*.*',
+    '**/nitrogen/**/*.*',
+    // exclude nitrogen + data classes
+    '**/Hybrid*Spec*.*',
+    '**/*OnLoad*.*',
+    '**/CompressOptions*.*',
+    '**/CompressedResult*.*',
+    '**/OutputCompressedFormat*.*',
+    // exclude boilerplate RN
+    '**/*Package*.*'
+  ]
+
+  def debugTree = fileTree(dir: "${buildDir}/intermediates/javac/debug/classes", excludes: fileFilter)
+  def kotlinDebugTree = fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter)
+
+  def mainSrc = "${project.projectDir}/src/main/java"
+  def kotlinSrc = "${project.projectDir}/src/main/kotlin"
+
+  sourceDirectories.setFrom(files([mainSrc, kotlinSrc]))
+  classDirectories.setFrom(files([debugTree, kotlinDebugTree]))
+
+  executionData.setFrom(fileTree(dir: "$buildDir", includes: [
+    "jacoco/testDebugUnitTest.exec",
+    "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+  ]))
 }

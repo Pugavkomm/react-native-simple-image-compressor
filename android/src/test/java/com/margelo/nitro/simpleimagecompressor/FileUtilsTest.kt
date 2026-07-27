@@ -1,12 +1,20 @@
 package com.margelo.nitro.simpleimagecompressor
 
+import android.content.ContentProvider
+import android.content.ContentValues
+import android.content.pm.ProviderInfo
+import android.database.Cursor
+import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Build
+import android.provider.OpenableColumns
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
+import java.io.FileNotFoundException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -80,6 +88,35 @@ class FileUtilsTest {
     val size = fetchFileSizeByUri(context, fakeUri)
 
     assertEquals(0, size)
+  }
+
+  class DummyContentProvider : ContentProvider() {
+    override fun onCreate(): Boolean = true
+    override fun query(
+      uri: Uri, projection: Array<String>?, selection: String?,
+      selectionArgs: Array<String>?, sortOrder: String?
+    ): Cursor {
+      val cursor = MatrixCursor(arrayOf(OpenableColumns.SIZE))
+      cursor.addRow(arrayOf(4096L))
+      return cursor
+    }
+    override fun getType(uri: Uri): String? = null
+    override fun insert(uri: Uri, values: ContentValues?): Uri? = null
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int = 0
+    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int = 0
+  }
+
+  @Test
+  fun `fetchFileSizeByUri with content URI uses Cursor to get size`() {
+    val context = RuntimeEnvironment.getApplication()
+    // Register fake provider Robolectric for URI "content://media/..."
+    val providerInfo = ProviderInfo().apply { authority = "media" }
+    Robolectric.buildContentProvider(DummyContentProvider::class.java).create(providerInfo)
+    val uri = Uri.parse("content://media/external/file/123")
+
+    val size = fetchFileSizeByUri(context, uri)
+
+    assertEquals(4096L, size)
   }
 
 }
